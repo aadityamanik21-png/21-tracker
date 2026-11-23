@@ -54,13 +54,101 @@
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .radial-cell { transition: opacity 0.15s ease, transform 0.15s ease; transform-origin: center; }
         .radial-cell:hover { opacity: 0.82; }
+
+        /* Ergonomic Mode System */
+        .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+        .side-rail { display: none; }
+        .bottom-nav { display: block; }
+        .content-wrap { max-width: 36rem; width: 100%; margin: 0 auto; }
+
+        @media (min-width: 1024px) {
+            body:not(.force-phone) { padding-bottom: 32px; }
+            body:not(.force-phone) .app-shell { flex-direction: row; align-items: flex-start; }
+            body:not(.force-phone) .side-rail {
+                display: flex; flex-direction: column; width: 220px; shrink: 0;
+                position: sticky; top: 57px; height: calc(100vh - 57px);
+                padding: 16px 12px; border-right: 1px solid rgba(148,163,184,0.2);
+            }
+            body:not(.force-phone) .bottom-nav { display: none; }
+            body:not(.force-phone) .content-wrap { max-width: 68rem; flex: 1; }
+            body:not(.force-phone) #plan-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+            body:not(.force-phone) #schedule-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        }
+
+        /* Manual Force Desktop (even on narrow windows) */
+        body.force-desktop { padding-bottom: 32px; }
+        body.force-desktop .app-shell { flex-direction: row; align-items: flex-start; }
+        body.force-desktop .side-rail {
+            display: flex; flex-direction: column; width: 220px; shrink: 0;
+            position: sticky; top: 57px; height: calc(100vh - 57px);
+            padding: 16px 12px; border-right: 1px solid rgba(148,163,184,0.2);
+        }
+        body.force-desktop .bottom-nav { display: none; }
+        body.force-desktop .content-wrap { max-width: 68rem; flex: 1; }
+
+        /* Manual Force Smartphone (even on wide screens) */
+        body.force-phone { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+        body.force-phone .app-shell { flex-direction: column; }
+        body.force-phone .side-rail { display: none; }
+        body.force-phone .bottom-nav { display: block; }
+        body.force-phone .content-wrap { max-width: 36rem; }
+
+        /* Compact Smartphone Ergonomics (Fit More At A Glance) */
+        @media (max-width: 1023px) {
+            body:not(.force-desktop) { font-size: 13px; padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
+            body:not(.force-desktop) main.content-wrap { padding-top: 10px; padding-left: 10px; padding-right: 10px; }
+            body:not(.force-desktop) section,
+            body:not(.force-desktop) #stats-panel-vision,
+            body:not(.force-desktop) #stats-panel-detailed,
+            body:not(.force-desktop) #plan-panel-targets,
+            body:not(.force-desktop) #plan-panel-vision,
+            body:not(.force-desktop) #log-panel-history,
+            body:not(.force-desktop) #log-panel-journal,
+            body:not(.force-desktop) #vr-content { gap: 8px !important; }
+            body:not(.force-desktop) .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 8px !important; }
+            body:not(.force-desktop) .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
+            body:not(.force-desktop) .p-5 { padding: 12px !important; }
+            body:not(.force-desktop) .p-4 { padding: 10px !important; }
+            body:not(.force-desktop) .p-3\.5 { padding: 8px !important; }
+            body:not(.force-desktop) .p-3 { padding: 8px !important; }
+            body:not(.force-desktop) .text-2xl { font-size: 1.15rem !important; line-height: 1.4rem !important; }
+            body:not(.force-desktop) .text-xl { font-size: 1rem !important; line-height: 1.3rem !important; }
+            body:not(.force-desktop) .text-base { font-size: 0.9rem !important; }
+            body:not(.force-desktop) .text-sm { font-size: 0.8rem !important; }
+            body:not(.force-desktop) .h-56 { height: 11.5rem !important; }
+            body:not(.force-desktop) #circular-heatmap-wrap { max-width: 245px !important; }
+            body:not(.force-desktop) .modal-box { padding: 12px !important; }
+            body:not(.force-desktop) .bottom-nav .max-w-md > button { padding-top: 2px; padding-bottom: 2px; }
+            body:not(.force-desktop) .bottom-nav i { font-size: 0.875rem !important; }
+            body:not(.force-desktop) button,
+            body:not(.force-desktop) select,
+            body:not(.force-desktop) input[type="date"],
+            body:not(.force-desktop) input[type="time"] { min-height: 30px; }
+        }
+
+        body.force-phone { font-size: 13px; padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
+        body.force-phone main.content-wrap { padding-top: 10px; padding-left: 10px; padding-right: 10px; }
+        body.force-phone .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 8px !important; }
+        body.force-phone .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
+        body.force-phone .p-5 { padding: 12px !important; }
+        body.force-phone .p-4 { padding: 10px !important; }
+        body.force-phone .p-3\.5 { padding: 8px !important; }
+        body.force-phone .p-3 { padding: 8px !important; }
+        body.force-phone .text-2xl { font-size: 1.15rem !important; line-height: 1.4rem !important; }
+        body.force-phone .text-xl { font-size: 1rem !important; line-height: 1.3rem !important; }
+        body.force-phone .text-base { font-size: 0.9rem !important; }
+        body.force-phone .text-sm { font-size: 0.8rem !important; }
+        body.force-phone .h-56 { height: 11.5rem !important; }
+        body.force-phone #circular-heatmap-wrap { max-width: 245px !important; }
+        body.force-phone .modal-box { padding: 12px !important; }
+        body.force-phone button, body.force-phone select, body.force-phone input[type="date"], body.force-phone input[type="time"] { min-height: 30px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen transition-colors">
 
     <!-- Top Header -->
     <header class="sticky top-0 z-40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
-        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
                 <span class="font-black text-lg tracking-tight">21</span>
                 <span id="header-subtitle" class="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-zinc-500">Audit</span>
@@ -83,8 +171,26 @@
         </div>
     </header>
 
+    <div class="app-shell max-w-6xl mx-auto w-full">
+        <!-- Desktop Sidebar Navigation -->
+        <aside class="side-rail bg-white/60 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 gap-1.5">
+            <div class="px-3 pb-2 text-[10px] font-mono uppercase tracking-widest text-slate-400">Workspace</div>
+            <button onclick="app.switchTab('stats')" id="rail-stats" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+                <i class="fas fa-chart-pie w-4 text-center"></i><span>Stats & Audit</span>
+            </button>
+            <button onclick="app.switchTab('plan')" id="rail-plan" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
+                <i class="fas fa-check-double w-4 text-center"></i><span>Plan & Vision</span>
+            </button>
+            <button onclick="app.switchTab('log')" id="rail-log" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
+                <i class="fas fa-feather-alt w-4 text-center"></i><span>Log & Journal</span>
+            </button>
+            <button onclick="app.switchTab('schedule')" id="rail-schedule" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
+                <i class="far fa-calendar-alt w-4 text-center"></i><span>Schedule</span>
+            </button>
+        </aside>
+
     <!-- Main Content -->
-    <main class="max-w-3xl mx-auto px-4 pt-5">
+    <main class="content-wrap px-4 pt-5">
 
         <!-- VIEW 1: STATS / AUDIT -->
         <section id="view-stats" class="space-y-4">
@@ -473,29 +579,26 @@
         </section>
 
         <!-- VIEW 4: SCHEDULE (FULL AGENDA) -->
-        <section id="view-schedule" class="hidden space-y-3">
-            <div class="flex flex-wrap justify-between items-center gap-2">
-                <div>
-                    <h2 class="font-black text-sm uppercase tracking-wider">Full Schedule</h2>
-                    <p class="text-[10px] text-slate-400 font-mono">Targets (Tasks) & Calendar Events</p>
+        <section id="view-schedule" class="hidden space-y-2.5">
+            <!-- Minimal Control & Action Strip -->
+            <div class="flex flex-col gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex bg-slate-100 dark:bg-zinc-950 p-0.5 rounded-xl text-[11px] font-bold shrink-0">
+                        <button onclick="app.setScheduleMode('month')" id="sched-mode-month" class="px-2.5 py-1 rounded-lg">Month</button>
+                        <button onclick="app.setScheduleMode('all')" id="sched-mode-all" class="px-2.5 py-1 rounded-lg">Timeline</button>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="app.openTaskModal(null, 'event')" class="px-2.5 py-1 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-[11px] font-bold active:scale-95 transition-all">+ Event</button>
+                        <button onclick="app.openTaskModal(null, 'task')" class="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold active:scale-95 transition-all">+ Target</button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5">
-                    <button onclick="app.openTaskModal(null, 'event')" class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold active:scale-95 transition-transform">+ Event</button>
-                    <button onclick="app.openTaskModal(null, 'task')" class="px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold active:scale-95 transition-transform">+ Target</button>
-                </div>
-            </div>
-
-            <!-- Schedule Controls -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2.5">
-                <div class="flex bg-slate-100 dark:bg-zinc-950 p-1 rounded-xl text-xs font-bold">
-                    <button onclick="app.setScheduleMode('month')" id="sched-mode-month" class="flex-1 sm:flex-none px-3 py-1 rounded-lg">Month</button>
-                    <button onclick="app.setScheduleMode('all')" id="sched-mode-all" class="flex-1 sm:flex-none px-3 py-1 rounded-lg">Full Timeline</button>
-                </div>
-                <div id="sched-month-nav" class="flex items-center justify-between sm:justify-end gap-2">
-                    <button onclick="app.shiftScheduleMonth(-1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-left"></i></button>
-                    <span id="sched-month-label" class="text-xs font-mono font-bold min-w-[125px] text-center">--</span>
-                    <button onclick="app.shiftScheduleMonth(1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-right"></i></button>
-                    <button onclick="app.resetScheduleMonth()" class="px-2.5 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
+                <div id="sched-month-nav" class="flex items-center justify-between gap-1 pt-1.5 border-t border-slate-100 dark:border-zinc-800/80">
+                    <button onclick="app.shiftScheduleMonth(-1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-left"></i></button>
+                    <div class="flex items-center gap-2">
+                        <span id="sched-month-label" class="text-[11px] font-mono font-bold text-center">--</span>
+                        <button onclick="app.resetScheduleMonth()" class="px-2 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
+                    </div>
+                    <button onclick="app.shiftScheduleMonth(1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -503,9 +606,10 @@
         </section>
 
     </main>
+    </div>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-t border-slate-200 dark:border-zinc-800 pb-[env(safe-area-inset-bottom)]">
+    <nav class="bottom-nav fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-t border-slate-200 dark:border-zinc-800 pb-[env(safe-area-inset-bottom)]">
         <div class="max-w-md mx-auto flex justify-around py-2">
             <button onclick="app.switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 px-4 py-1 text-blue-600 dark:text-blue-400">
                 <i class="fas fa-chart-pie text-base"></i><span class="text-[10px] font-bold uppercase">Stats</span>
@@ -748,6 +852,17 @@
                 <span><i class="fas fa-mobile-alt mr-2"></i>Install App on Device</span>
                 <i class="fas fa-download"></i>
             </button>
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2">
+                <div class="flex items-center justify-between text-xs font-bold">
+                    <span><i class="fas fa-desktop mr-2 text-blue-500"></i>Ergonomic Layout Mode</span>
+                    <span id="layout-mode-label" class="text-[10px] font-mono uppercase text-slate-400">Auto</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-xl text-[11px] font-bold">
+                    <button type="button" onclick="app.setLayoutMode('auto')" id="lmode-auto" class="py-1.5 rounded-lg transition-colors">Auto</button>
+                    <button type="button" onclick="app.setLayoutMode('desktop')" id="lmode-desktop" class="py-1.5 rounded-lg transition-colors">Desktop</button>
+                    <button type="button" onclick="app.setLayoutMode('phone')" id="lmode-phone" class="py-1.5 rounded-lg transition-colors">Phone</button>
+                </div>
+            </div>
             <button onclick="app.toggleTheme()" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs font-bold">
                 <span><i class="fas fa-adjust mr-2 text-blue-500"></i>Toggle Dark / Light Mode</span>
                 <i class="fas fa-chevron-right text-slate-400"></i>
@@ -819,6 +934,7 @@
             lastSyncOk: false,
             scheduleMode: 'month', // 'month' | 'all'
             scheduleCursor: new Date(),
+            layoutMode: localStorage.getItem('strict_layout_mode') || 'auto', // 'auto' | 'desktop' | 'phone'
 
             // Habit Consistency Modal State (Stats)
             heatmapScope: 'month',
@@ -906,6 +1022,7 @@
                     });
                 });
 
+                app.applyLayoutMode(app.layoutMode);
                 app.updateHeaderMetrics();
                 app.switchTab('stats');
 
@@ -971,6 +1088,10 @@
                     document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
                     const nav = document.getElementById('nav-' + t);
                     nav.className = `flex flex-col items-center gap-1 px-4 py-1 ${t === tab ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-zinc-500'}`;
+                    const rail = document.getElementById('rail-' + t);
+                    if (rail) {
+                        rail.className = `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors ${t === tab ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900'}`;
+                    }
                 });
 
                 if (tab === 'stats') app.renderStats();
@@ -2183,10 +2304,10 @@
                 if (navEl) navEl.classList.toggle('hidden', mode !== 'month');
 
                 if (mode === 'all') {
-                    const valid = app.tasks.filter(t => t.deadline && !t.failed);
+                    const valid = app.tasks.filter(t => t.deadline && !t.failed && t.deadline >= todayISO);
                     const dates = Array.from(new Set(valid.map(t => t.deadline))).sort();
                     if (dates.length === 0) {
-                        container.innerHTML = `<div class="text-center py-12 text-xs font-mono text-slate-400">No targets or events scheduled yet.</div>`;
+                        container.innerHTML = `<div class="text-center py-12 text-xs font-mono text-slate-400">No upcoming targets or events scheduled.</div>`;
                         return;
                     }
                     container.innerHTML = dates.map(iso => {
@@ -2195,44 +2316,49 @@
                         const dayItems = valid.filter(t => t.deadline === iso).sort((a, b) => (a.itemType === 'event' ? -1 : 1) || (a.startTime || '').localeCompare(b.startTime || ''));
                         const isToday = iso === todayISO;
                         return `
-                        <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl p-3 flex gap-4 items-start">
-                            <div class="w-16 shrink-0 text-center">
-                                <div class="text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${dt.getDate()}</div>
+                        <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
+                            <div class="w-12 sm:w-16 shrink-0 text-center">
+                                <div class="text-sm sm:text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${dt.getDate()}</div>
                                 <div class="text-[9px] font-mono uppercase text-slate-400 mt-0.5">${dt.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</div>
                                 <div class="text-[9px] font-mono uppercase text-slate-400">${dt.toLocaleDateString('en-US', { weekday: 'short' })}</div>
                             </div>
-                            <div class="flex-1 space-y-1.5 min-w-0">${dayItems.map(app.renderScheduleRowHTML).join('')}</div>
+                            <div class="flex-1 space-y-1 sm:space-y-1.5 min-w-0">${dayItems.map(app.renderScheduleRowHTML).join('')}</div>
                         </div>`;
                     }).join('');
                     return;
                 }
 
-                // Month View (Any past or future month/year)
+                // Month View (Hides past dates by default; shows full month when navigating to a past month)
                 const cur = new Date(app.scheduleCursor);
                 const y = cur.getFullYear(), mo = cur.getMonth();
                 const daysInMonth = new Date(y, mo + 1, 0).getDate();
                 const lbl = document.getElementById('sched-month-label');
                 if (lbl) lbl.innerText = cur.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
+                const now = new Date();
+                const isViewingPastMonth = (y < now.getFullYear()) || (y === now.getFullYear() && mo < now.getMonth());
+
                 let html = '';
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dt = new Date(y, mo, day);
                     const iso = app.formatISO(dt);
+                    if (!isViewingPastMonth && iso < todayISO) continue;
+
                     const dayItems = app.tasks.filter(t => t.deadline === iso && !t.failed).sort((a, b) => (a.itemType === 'event' ? -1 : 1) || (a.startTime || '').localeCompare(b.startTime || ''));
                     const isToday = iso === todayISO;
 
                     html += `
-                    <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl p-3 flex gap-4 items-start">
-                        <div class="w-12 shrink-0 text-center">
-                            <div class="text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${day}</div>
-                            <div class="text-[10px] font-mono uppercase text-slate-400 mt-0.5">${dt.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                    <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
+                        <div class="w-10 sm:w-12 shrink-0 text-center">
+                            <div class="text-sm sm:text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${day}</div>
+                            <div class="text-[9px] sm:text-[10px] font-mono uppercase text-slate-400">${dt.toLocaleDateString('en-US', { weekday: 'short' })}</div>
                         </div>
-                        <div class="flex-1 space-y-1.5 min-w-0">
-                            ${dayItems.length === 0 ? '<div class="text-xs text-slate-400 font-mono py-1">Clear</div>' : dayItems.map(app.renderScheduleRowHTML).join('')}
+                        <div class="flex-1 space-y-1 sm:space-y-1.5 min-w-0">
+                            ${dayItems.length === 0 ? '<div class="text-[11px] text-slate-400 font-mono">Clear</div>' : dayItems.map(app.renderScheduleRowHTML).join('')}
                         </div>
                     </div>`;
                 }
-                container.innerHTML = html;
+                container.innerHTML = html || `<div class="text-center py-12 text-xs font-mono text-slate-400">No upcoming days in this month.</div>`;
             },
 
             // --- STATS & AUDIT ---
@@ -2375,30 +2501,30 @@
 
                 // 1. Hero Alignment HUD
                 const heroHtml = `
-                <div class="rounded-3xl p-5 bg-gradient-to-br from-slate-900 via-zinc-900 to-slate-950 text-white border border-slate-800 shadow-lg relative overflow-hidden">
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="relative w-24 h-24 shrink-0">
+                <div class="rounded-2xl sm:rounded-3xl p-3 sm:p-5 bg-gradient-to-br from-slate-900 via-zinc-900 to-slate-950 text-white border border-slate-800 shadow-lg relative overflow-hidden">
+                    <div class="flex items-center justify-between gap-2.5 sm:gap-4">
+                        <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
+                            <div class="relative w-16 h-16 sm:w-24 sm:h-24 shrink-0">
                                 <svg viewBox="0 0 96 96" class="w-full h-full -rotate-90">
                                     <circle cx="48" cy="48" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
                                     <circle cx="48" cy="48" r="38" fill="none" stroke="${ringColor}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}" style="transition: stroke-dashoffset 0.5s ease;"/>
                                 </svg>
                                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span class="text-xl font-black font-mono leading-none">${alignment}%</span>
-                                    <span class="text-[8px] font-mono uppercase text-slate-400 mt-0.5">Aligned</span>
+                                    <span class="text-sm sm:text-xl font-black font-mono leading-none">${alignment}%</span>
+                                    <span class="text-[7px] sm:text-[8px] font-mono uppercase text-slate-400 mt-0.5">Aligned</span>
                                 </div>
                             </div>
-                            <div>
-                                <span class="text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${verdictCls}">${verdictText}</span>
-                                <h2 class="text-base font-black tracking-tight mt-1.5">Vision vs Reality</h2>
-                                <p class="text-[11px] text-slate-400 font-mono mt-0.5">${totalPlanned > 0 ? `Gap: <span class="text-rose-400 font-bold">${gap}%</span> (${totalExecuted}/${totalPlanned} hit)` : 'Plan your day to measure the gap'}</p>
+                            <div class="min-w-0">
+                                <span class="text-[8px] sm:text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${verdictCls}">${verdictText}</span>
+                                <h2 class="text-sm sm:text-base font-black tracking-tight mt-1 truncate">Vision vs Reality</h2>
+                                <p class="text-[10px] sm:text-[11px] text-slate-400 font-mono mt-0.5 truncate">${totalPlanned > 0 ? `Gap: <span class="text-rose-400 font-bold">${gap}%</span> (${totalExecuted}/${totalPlanned} hit)` : 'Plan your day to measure the gap'}</p>
                             </div>
                         </div>
-                        <button onclick="app.openVisionPlannerFor('${dateStr}')" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors">
+                        <button onclick="app.openVisionPlannerFor('${dateStr}')" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors">
                             <i class="fas fa-pen mr-1"></i>${v ? 'Edit' : 'Plan'}
                         </button>
                     </div>
-                    <div class="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-white/10 text-center">
+                    <div class="grid grid-cols-3 gap-1.5 sm:gap-2 mt-2.5 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-white/10 text-center">
                         <div>
                             <div class="text-[9px] font-mono uppercase text-slate-400">Priorities</div>
                             <div class="text-sm font-black font-mono mt-0.5">${prioDone}/${prioTotal}</div>
@@ -3101,8 +3227,32 @@
                 }
             },
 
+             applyLayoutMode: (mode) => {
+                const valid = ['auto', 'desktop', 'phone'].includes(mode) ? mode : 'auto';
+                app.layoutMode = valid;
+                document.body.classList.toggle('force-desktop', valid === 'desktop');
+                document.body.classList.toggle('force-phone', valid === 'phone');
+
+                const lbl = document.getElementById('layout-mode-label');
+                if (lbl) lbl.innerText = valid === 'auto' ? 'Auto' : valid === 'desktop' ? 'Desktop' : 'Smartphone';
+
+                ['auto', 'desktop', 'phone'].forEach(m => {
+                    const btn = document.getElementById('lmode-' + m);
+                    if (btn) {
+                        btn.className = `py-1.5 rounded-lg transition-colors ${m === valid ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
+                    }
+                });
+            },
+
+            setLayoutMode: (mode) => {
+                localStorage.setItem('strict_layout_mode', mode);
+                app.applyLayoutMode(mode);
+            },
+
             // --- SETTINGS & DATA ---
-             openSettings: () => {
+            openSettings: () => {
+                app.applyLayoutMode(app.layoutMode);
+
                 const u = document.getElementById('sync-url-input');
                 const k = document.getElementById('sync-key-input');
                 if (u) u.value = app.syncUrl;
