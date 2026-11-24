@@ -1091,10 +1091,13 @@
                     return `<button type="button" onclick="app.renderColorPicker('${c.id}')" title="${c.name}" class="w-7 h-7 rounded-full flex items-center justify-center transition-transform ${active ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-zinc-900 scale-110' : 'opacity-80 hover:opacity-100'}" style="background:${c.id ? c.hex : 'transparent'}; ${c.id ? '' : 'border:2px dashed #94a3b8;'}">${active ? `<i class="fas fa-check text-[10px] ${c.id ? 'text-white' : 'text-slate-500'}"></i>` : ''}</button>`;
                 }).join('');
             },
-            syncTimer: null,
+              syncTimer: null,
             isSyncing: false,
             lastSyncOk: false,
+            syncVersion: 0,
+            needsResync: false,
             scheduleMode: 'month', // 'month' | 'all'
+
             scheduleCursor: new Date(),
             layoutMode: localStorage.getItem('strict_layout_mode') || 'auto', // 'auto' | 'desktop' | 'phone'
 
@@ -1192,10 +1195,24 @@
                 app.updateHeaderMetrics();
                 app.switchTab('stats');
 
-                // Auto-sync on launch & whenever returning to the app
-                if (app.isGCalConnected()) app.syncGCal(true);
+                // Auto-sync on launch, flush immediately on exit/minimize
+                if (app.isGCalConnected()) app.syncGCal(true, false);
                 document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible' && app.isGCalConnected()) app.syncGCal(true);
+                    if (!app.isGCalConnected()) return;
+                    if (document.visibilityState === 'hidden' && app.syncTimer) {
+                        clearTimeout(app.syncTimer);
+                        app.syncTimer = null;
+                        app.syncGCal(true, true);
+                    } else if (document.visibilityState === 'visible') {
+                        app.syncGCal(true, false);
+                    }
+                });
+                window.addEventListener('pagehide', () => {
+                    if (app.isGCalConnected() && app.syncTimer) {
+                        clearTimeout(app.syncTimer);
+                        app.syncTimer = null;
+                        app.syncGCal(true, true);
+                    }
                 });
             },
 
@@ -1215,7 +1232,10 @@
                 if (sc) sc.innerText = tc;
                 if (stc) stc.innerText = tc;
                 app.updateHeaderMetrics();
-                if (!skipAutoSync && app.isGCalConnected()) app.scheduleAutoSync();
+                if (!skipAutoSync) {
+                    app.syncVersion++;
+                    if (app.isGCalConnected()) app.scheduleAutoSync();
+                }
             },
 
             processRecurring: () => {
@@ -2770,6 +2790,7 @@
                 const v = app.visions[dateStr];
                 if (!v || !v.priorities || !v.priorities[idx]) return;
                 v.priorities[idx].done = !v.priorities[idx].done;
+                v.updatedAt = Date.now();
                 app.save();
                 app.renderVisionVsReality();
             },
@@ -2792,6 +2813,7 @@
                 const blk = v.blocks.find(b => b.id === blockId);
                 if (!blk) return;
                 blk.status = blk.status === status ? 'pending' : status;
+                v.updatedAt = Date.now();
                 app.save();
                 app.renderVisionVsReality();
             },
@@ -2803,6 +2825,7 @@
                 const blk = v.blocks.find(b => b.id === blockId);
                 if (!blk) return;
                 blk.actual = val.trim();
+                v.updatedAt = Date.now();
                 app.save();
             },
 
@@ -3494,7 +3517,10 @@
 
             scheduleAutoSync: () => {
                 if (app.syncTimer) clearTimeout(app.syncTimer);
-                app.syncTimer = setTimeout(() => app.syncGCal(true), 2500);
+                app.syncTimer = setTimeout(() => {
+                    app.syncTimer = null;
+                    app.syncGCal(true, true);
+                }, 600);
             },
 
             gcalPushItem: (item) => {
@@ -3515,7 +3541,7 @@
                 app.save();
             },
 
-            syncGCal: async (silent = false) => {
+            syncGCal: async (silent = false, quickPush = false) => {
                 if (!app.isGCalConnected()) {
                     if (!silent) {
                         app.openSettings();
@@ -3523,55 +3549,68 @@
                     }
                     return;
                 }
-                if (app.isSyncing) return;
+                if (app.isSyncing) {
+                    app.needsResync = true;
+                    return;
+                }
                 app.isSyncing = true;
+                app.needsResync = false;
                 app.updateGCalStatusUI(true);
+                const reqVersion = app.syncVersion;
 
                 try {
                     app.processRecurring();
+                    const bodyStr = JSON.stringify({
+                        secret: app.syncKey,
+                        manual: !silent,
+                        quickPush: Boolean(quickPush),
+                        today: app.getTodayISO(),
+                        tasks: app.tasks,
+                        trash: app.trash,
+                        logs: app.logs,
+                        markers: app.markers,
+                        markersUpdatedAt: app.markersUpdatedAt,
+                        visions: app.visions,
+                        pendingDeletes: app.pendingDeletes,
+                        pendingRestores: app.pendingRestores,
+                        pendingPurges: app.pendingPurges
+                    });
+
                     const res = await fetch(app.syncUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({
-                            secret: app.syncKey,
-                            manual: !silent,
-                            today: app.getTodayISO(),
-                            tasks: app.tasks,
-                            trash: app.trash,
-                            logs: app.logs,
-                            markers: app.markers,
-                            markersUpdatedAt: app.markersUpdatedAt,
-                            visions: app.visions,
-                            pendingDeletes: app.pendingDeletes,
-                            pendingRestores: app.pendingRestores,
-                            pendingPurges: app.pendingPurges
-                        })
+                        body: bodyStr,
+                        keepalive: bodyStr.length < 60000
                     });
                     const data = await res.json();
                     if (!data.ok) throw new Error(data.error || 'Sync rejected');
 
-                    app.tasks = data.tasks || [];
-                    app.trash = data.trash || [];
-                    app.logs = data.logs || {};
-                    app.markers = data.markers || [];
-                    app.markersUpdatedAt = data.markersUpdatedAt || app.markersUpdatedAt;
-                    app.visions = data.visions || {};
-                    app.pendingDeletes = [];
-                    app.pendingRestores = [];
-                    app.pendingPurges = [];
-                    app.lastSyncOk = true;
+                    if (reqVersion === app.syncVersion) {
+                        app.tasks = data.tasks || [];
+                        app.trash = data.trash || [];
+                        app.logs = data.logs || {};
+                        app.markers = data.markers || [];
+                        app.markersUpdatedAt = data.markersUpdatedAt || app.markersUpdatedAt;
+                        app.visions = data.visions || {};
+                        app.pendingDeletes = [];
+                        app.pendingRestores = [];
+                        app.pendingPurges = [];
+                        app.lastSyncOk = true;
 
-                    app.save(true);
-                    app.updateGCalStatusUI(false);
+                        app.save(true);
+                        app.updateGCalStatusUI(false);
 
-                    if (app.currentTab === 'plan') app.setPlanSubTab(app.planSubTab);
-                    if (app.currentTab === 'schedule') app.renderSchedule();
-                    if (app.currentTab === 'stats') app.renderStats();
-                    if (app.currentTab === 'log') app.setLogSubTab(app.logSubTab);
+                        if (app.currentTab === 'plan') app.setPlanSubTab(app.planSubTab);
+                        if (app.currentTab === 'schedule') app.renderSchedule();
+                        if (app.currentTab === 'stats') app.renderStats();
+                        if (app.currentTab === 'log') app.setLogSubTab(app.logSubTab);
 
-                    if (!silent && data.stats) {
-                        const s = data.stats;
-                        alert(`Synced! Pushed ${s.pushed}, pulled ${s.pulledTasks} tasks & ${s.pulledEvents} events, removed ${s.removed}.`);
+                        if (!silent && data.stats) {
+                            const s = data.stats;
+                            alert(`Synced! Pushed ${s.pushed}, pulled ${s.pulledTasks} tasks & ${s.pulledEvents} events, removed ${s.removed}.`);
+                        }
+                    } else {
+                        app.needsResync = true;
                     }
                 } catch (e) {
                     app.lastSyncOk = false;
@@ -3579,6 +3618,10 @@
                     if (!silent) alert('Sync failed: ' + (e.message || 'Check your Apps Script URL, Secret Key, and internet connection.'));
                 } finally {
                     app.isSyncing = false;
+                    if (app.needsResync) {
+                        app.needsResync = false;
+                        app.syncGCal(true, true);
+                    }
                 }
             },
 
