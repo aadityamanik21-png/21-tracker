@@ -76,7 +76,6 @@
 
             /* Keep Sub-Tab Switchers & Date Bar Crisp Instead of Stretched */
             body:not(.force-phone) #view-stats > div:first-child,
-            body:not(.force-phone) #view-plan > div:first-child,
             body:not(.force-phone) #view-log > div:first-child { max-width: 420px; }
             body:not(.force-phone) #stats-panel-vision > div:first-child { max-width: 340px; }
 
@@ -363,47 +362,19 @@
             </div>
         </section>
 
-        <!-- VIEW 2: PLAN (TARGETS & VISION PLANNER) -->
+        <!-- VIEW 2: PLAN (VISION PLANNER) -->
         <section id="view-plan" class="hidden space-y-4">
-            <!-- Plan Sub-Tab Switcher -->
-            <div class="flex bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800">
-                <button onclick="app.setPlanSubTab('targets')" id="plan-subtab-targets" class="flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-tasks text-[11px]"></i> Targets
-                </button>
-                <button onclick="app.setPlanSubTab('vision')" id="plan-subtab-vision" class="flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-compass text-[11px]"></i> Vision Planner
-                </button>
-            </div>
-
-            <!-- SUB-TAB A: TARGETS -->
-            <div id="plan-panel-targets" class="space-y-4">
-                <div class="flex items-center justify-between gap-2">
-                    <div class="flex bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-xl text-xs font-bold">
-                        <button onclick="app.setPlanFilter('active')" id="filter-active" class="px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 shadow-sm">Active</button>
-                        <button onclick="app.setPlanFilter('today')" id="filter-today" class="px-3 py-1.5 rounded-lg text-slate-500">Today</button>
-                        <button onclick="app.setPlanFilter('done')" id="filter-done" class="px-3 py-1.5 rounded-lg text-slate-500">Done</button>
-                    </div>
-                    <button onclick="app.openTaskModal()" class="px-3.5 py-2 bg-slate-900 dark:bg-white text-white dark:text-zinc-950 rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-transform">
-                        <i class="fas fa-plus"></i> Add Target
-                    </button>
-                </div>
-
-                <div id="plan-list" class="space-y-3"></div>
-            </div>
-
-            <!-- SUB-TAB B: VISION PLANNER (CUSTOM INTERVALS) -->
-            <div id="plan-panel-vision" class="hidden space-y-4">
+            <div id="plan-panel-vision" class="space-y-4">
                 <div id="vision-planner-card" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 space-y-5">
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
                         <div>
                             <h3 class="font-black text-sm uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
-                                <i class="fas fa-compass"></i> Vision Planner
+                                <i class="fas fa-compass"></i> Plan Your Day
                             </h3>
-                            <p class="text-[10px] text-slate-400 font-mono">Design any day with custom time intervals</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="date" id="vision-date-input" onchange="app.loadVisionPlanner(this.value)" class="bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none">
-                            <button id="btn-save-vision" onclick="app.saveVisionPlan()" class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform">Save Vision</button>
+                            <button id="btn-save-vision" onclick="app.saveVisionPlan()" class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform">Save Plan</button>
                         </div>
                     </div>
 
@@ -413,11 +384,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div class="flex items-center gap-2 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2">
                                 <span class="text-xs font-black font-mono text-blue-500">#1</span>
-                                <input type="text" id="vp-prio-1" placeholder="Primary objective..." class="w-full bg-transparent text-xs font-semibold outline-none">
+                                <input type="text" id="vp-prio-1" onchange="app.persistDraftVision()" placeholder="Primary objective..." class="w-full bg-transparent text-xs font-semibold outline-none">
                             </div>
                             <div class="flex items-center gap-2 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2">
                                 <span class="text-xs font-black font-mono text-blue-500">#2</span>
-                                <input type="text" id="vp-prio-2" placeholder="Secondary objective..." class="w-full bg-transparent text-xs font-semibold outline-none">
+                                <input type="text" id="vp-prio-2" onchange="app.persistDraftVision()" placeholder="Secondary objective..." class="w-full bg-transparent text-xs font-semibold outline-none">
                             </div>
                         </div>
                     </div>
@@ -429,23 +400,45 @@
                             <select id="vp-pull-select" class="flex-1 p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-semibold outline-none"></select>
                             <button type="button" onclick="app.pullTaskToVision()" class="px-3 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold shrink-0">Pull</button>
                         </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="vp-new-task-title" placeholder="Or create a new task directly..." class="flex-1 p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs outline-none">
-                            <select id="vp-new-task-prio" class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
-                                <option value="High">High</option>
-                                <option value="Medium" selected>Med</option>
-                                <option value="Low">Low</option>
-                            </select>
-                            <button type="button" onclick="app.createTaskForVision()" class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shrink-0">+ Add</button>
-                        </div>
+                        <button type="button" onclick="app.openVisionTaskModal()" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> Create new Task
+                        </button>
                         <div id="vp-tasks-chips" class="flex flex-wrap gap-1.5 pt-1"></div>
                     </div>
 
                     <!-- Step 3: Custom Time Interval Blueprint -->
                     <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-zinc-800">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">3. Time-Block Blueprint (e.g. 05:00 – 07:00)</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">3. Plan each hour of Day</p>
+
+                        <!-- Premade Wakeup & Sleep Intervals (Auto-tracked via Log, 10m grace) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="p-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400"><i class="fas fa-sun mr-1"></i>Wakeup</span>
+                                    <span class="text-[9px] font-mono text-amber-600/80 dark:text-amber-400/70">±10m grace</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="time" id="vp-wake-start" onchange="app.persistDraftVision()" class="w-full p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-amber-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                                    <span class="text-[10px] font-mono text-slate-400">–</span>
+                                    <input type="time" id="vp-wake-end" onchange="app.persistDraftVision()" class="w-full p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-amber-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                                </div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-900/40 space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400"><i class="fas fa-moon mr-1"></i>Sleep</span>
+                                    <span class="text-[9px] font-mono text-indigo-600/80 dark:text-indigo-400/70">±10m grace</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="time" id="vp-sleep-start" onchange="app.persistDraftVision()" class="w-full p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-indigo-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                                    <span class="text-[10px] font-mono text-slate-400">–</span>
+                                    <input type="time" id="vp-sleep-end" onchange="app.persistDraftVision()" class="w-full p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-indigo-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Activity Interval Builder -->
                         <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2.5">
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-3 gap-2">
                                 <div>
                                     <label class="block text-[9px] font-bold uppercase text-slate-400 mb-1">Start</label>
                                     <input type="time" id="vp-int-start" value="05:00" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
@@ -454,16 +447,31 @@
                                     <label class="block text-[9px] font-bold uppercase text-slate-400 mb-1">End</label>
                                     <input type="time" id="vp-int-end" value="07:00" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
                                 </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold uppercase text-slate-400 mb-1">Activity</label>
+                                    <select id="vp-int-type" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
+                                        <option value="study">Study</option>
+                                        <option value="practice">Practice</option>
+                                        <option value="revision">Revision</option>
+                                        <option value="exercise">Exercise</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="flex gap-2">
-                                <input type="text" id="vp-int-plan" placeholder="Activity or task for this interval..." class="flex-1 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs outline-none">
+                                <input type="text" id="vp-int-plan" onkeydown="if(event.key==='Enter'){event.preventDefault();app.addVisionBlock();}" placeholder="what will you do during this time" class="flex-1 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs outline-none">
                                 <select id="vp-int-task-pick" onchange="if(this.value){ document.getElementById('vp-int-plan').value = this.value; this.value = ''; }" class="w-24 sm:w-28 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-[10px] font-bold text-slate-500 outline-none shrink-0"></select>
                             </div>
-                            <button type="button" onclick="app.addVisionBlock()" class="w-full py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold uppercase tracking-wider active:scale-95 transition-transform">
-                                <i class="fas fa-plus mr-1"></i> Add Time Interval
-                            </button>
+                            <div class="flex gap-2">
+                                <button type="button" id="vp-int-submit-btn" onclick="app.addVisionBlock()" class="flex-1 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold uppercase tracking-wider active:scale-95 transition-transform">
+                                    <i class="fas fa-plus mr-1"></i> Add to Plan
+                                </button>
+                                <button type="button" id="vp-int-cancel-btn" onclick="app.cancelEditVisionBlock()" class="hidden px-3 py-2 rounded-xl bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 text-xs font-bold uppercase">
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
-                        <div id="vp-blocks-list" class="space-y-2"></div>
+                        <div id="vp-blocks-list" class="space-y-2 pb-6"></div>
                     </div>
                 </div>
             </div>
@@ -625,7 +633,7 @@
                         <div id="diet-meal-entry-row" class="hidden space-y-1.5">
                             <label id="diet-meal-prompt" class="block text-[10px] font-bold text-teal-700 dark:text-teal-400">What did you eat?</label>
                             <div class="flex gap-2">
-                                <input type="text" id="diet-meal-input" placeholder="e.g., 2 roti, dal, salad..." class="flex-1 p-2 rounded-xl bg-white dark:bg-zinc-950 border border-teal-200 dark:border-zinc-800 text-xs outline-none">
+                                <input type="text" id="diet-meal-input" onkeydown="if(event.key==='Enter'){event.preventDefault();app.addDietMeal();}" placeholder="e.g., 2 roti, dal, salad..." class="flex-1 p-2 rounded-xl bg-white dark:bg-zinc-950 border border-teal-200 dark:border-zinc-800 text-xs outline-none">
                                 <button type="button" onclick="app.addDietMeal()" class="px-3.5 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold shrink-0">Add</button>
                             </div>
                         </div>
@@ -673,20 +681,20 @@
                         <button onclick="app.setScheduleMode('all')" id="sched-mode-all" class="px-2.5 py-1 rounded-lg">Timeline</button>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="app.openRecycleBin()" title="Recycle Bin" class="px-2 py-1 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 border border-slate-200 dark:border-zinc-700 text-[11px] font-bold active:scale-95 transition-all flex items-center gap-1">
-                            <i class="fas fa-trash-restore text-[10px]"></i><span id="sched-trash-count" class="font-mono text-[10px]">0</span>
-                        </button>
                         <button onclick="app.openTaskModal(null, 'event')" class="px-2.5 py-1 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-[11px] font-bold active:scale-95 transition-all">+ Event</button>
                         <button onclick="app.openTaskModal(null, 'task')" class="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold active:scale-95 transition-all">+ Target</button>
                     </div>
                 </div>
-                <div id="sched-month-nav" class="flex items-center justify-between gap-1 pt-1.5 border-t border-slate-100 dark:border-zinc-800/80">
-                    <button onclick="app.shiftScheduleMonth(-1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-left"></i></button>
-                    <div class="flex items-center gap-2">
-                        <span id="sched-month-label" class="text-[11px] font-mono font-bold text-center">--</span>
-                        <button onclick="app.resetScheduleMonth()" class="px-2 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
+                <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-zinc-800/80">
+                    <div id="sched-month-nav" class="flex items-center gap-1.5">
+                        <button onclick="app.shiftScheduleMonth(-1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-left"></i></button>
+                        <span id="sched-month-label" class="text-[11px] font-mono font-bold min-w-[100px] text-center">--</span>
+                        <button onclick="app.shiftScheduleMonth(1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-right"></i></button>
+                        <button onclick="app.resetScheduleMonth()" class="px-2 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
                     </div>
-                    <button onclick="app.shiftScheduleMonth(1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-right"></i></button>
+                    <button onclick="app.openRecycleBin()" title="Recycle Bin" class="ml-auto px-2.5 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 border border-slate-200 dark:border-zinc-700 text-[11px] font-bold active:scale-95 transition-all flex items-center gap-1 shrink-0">
+                        <i class="fas fa-trash-restore text-[10px]"></i><span id="sched-trash-count" class="font-mono text-[10px]">0</span>
+                    </button>
                 </div>
             </div>
 
@@ -958,6 +966,31 @@
         </div>
     </div>
 
+    <!-- MODAL: CREATE TASK FROM VISION PLANNER -->
+    <div id="vision-task-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('vision-task-modal')">
+        <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-base">Create new Task</h3>
+                <button onclick="app.closeModal('vision-task-modal')" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500"><i class="fas fa-times text-xs"></i></button>
+            </div>
+            <form onsubmit="app.createTaskForVision(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Task Name</label>
+                    <input type="text" id="vp-modal-title" required placeholder="Enter task name..." class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Priority</label>
+                    <select id="vp-modal-prio" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-colors">Add Task</button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL: SETTINGS -->
     <div id="settings-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('settings-modal')">
         <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800 space-y-3">
@@ -1181,7 +1214,8 @@
                 app.processRecurring();
                 app.currentLogDate = app.getTodayISO();
                 app.vrDate = app.getTodayISO();
-                app.visionPlanDate = app.addDaysISO(app.getTodayISO(), 1);
+                app.visionPlanDate = localStorage.getItem('strict_vision_plan_date') || app.getTodayISO();
+                try { app.dirtyVisionDates = JSON.parse(localStorage.getItem('strict_dirty_visions')) || []; } catch (e) { app.dirtyVisionDates = []; }
 
                 document.querySelectorAll('.day-toggle').forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -1195,22 +1229,23 @@
                 app.updateHeaderMetrics();
                 app.switchTab('stats');
 
-                // Auto-sync on launch, flush immediately on exit/minimize
+                // Auto-sync on launch, reconnect, and flush immediately on exit/minimize
                 if (app.isGCalConnected()) app.syncGCal(true, false);
+                window.addEventListener('online', () => {
+                    if (app.isGCalConnected()) app.syncGCal(true, false);
+                });
                 document.addEventListener('visibilitychange', () => {
                     if (!app.isGCalConnected()) return;
-                    if (document.visibilityState === 'hidden' && app.syncTimer) {
-                        clearTimeout(app.syncTimer);
-                        app.syncTimer = null;
+                    if (document.visibilityState === 'hidden' && (app.syncTimer || app.needsResync)) {
+                        if (app.syncTimer) { clearTimeout(app.syncTimer); app.syncTimer = null; }
                         app.syncGCal(true, true);
                     } else if (document.visibilityState === 'visible') {
                         app.syncGCal(true, false);
                     }
                 });
                 window.addEventListener('pagehide', () => {
-                    if (app.isGCalConnected() && app.syncTimer) {
-                        clearTimeout(app.syncTimer);
-                        app.syncTimer = null;
+                    if (app.isGCalConnected() && (app.syncTimer || app.needsResync)) {
+                        if (app.syncTimer) { clearTimeout(app.syncTimer); app.syncTimer = null; }
                         app.syncGCal(true, true);
                     }
                 });
@@ -1265,7 +1300,8 @@
                         completed: false,
                         failed: false,
                         failReason: '',
-                        completedAt: null
+                        completedAt: null,
+                        updatedAt: Date.now()
                     });
                     changed = true;
                 });
@@ -1294,17 +1330,9 @@
                 if (tab === 'schedule') app.renderSchedule();
             },
 
-            setPlanSubTab: (sub) => {
-                app.planSubTab = sub;
-                ['targets', 'vision'].forEach(s => {
-                    const btn = document.getElementById('plan-subtab-' + s);
-                    const panel = document.getElementById('plan-panel-' + s);
-                    const active = s === sub;
-                    btn.className = `flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${active ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
-                    panel.classList.toggle('hidden', !active);
-                });
-                if (sub === 'targets') app.renderPlan();
-                else app.loadVisionPlanner(app.visionPlanDate || app.addDaysISO(app.getTodayISO(), 1));
+            setPlanSubTab: () => {
+                app.planSubTab = 'vision';
+                app.loadVisionPlanner(app.visionPlanDate || app.getTodayISO());
             },
 
             openLogSubTab: (subTab) => {
@@ -1426,6 +1454,11 @@
 
                 const streaks = app.getStreaks();
                 document.getElementById('streak-count').innerText = streaks.task.count;
+                const tc = (app.trash || []).length;
+                const sc = document.getElementById('sched-trash-count');
+                const stc = document.getElementById('settings-trash-count');
+                if (sc) sc.innerText = tc;
+                if (stc) stc.innerText = tc;
             },
 
             // --- LOG HISTORY: CIRCULAR HEATMAP ---
@@ -1981,84 +2014,12 @@
                 }
             },
 
-            // --- PLAN (TASKS & HABITS) ---
-            setPlanFilter: (f) => {
-                app.planFilter = f;
-                ['active', 'today', 'done'].forEach(x => {
-                    const btn = document.getElementById('filter-' + x);
-                    btn.className = `px-3 py-1.5 rounded-lg ${x === f ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`;
-                });
-                app.renderPlan();
-            },
-
+            // --- PLAN (VISION PLANNER) ---
             renderPlan: () => {
                 app.processRecurring();
-                const container = document.getElementById('plan-list');
-                const today = app.getTodayISO();
-                const targetsOnly = app.tasks.filter(t => t.itemType !== 'event');
-                let list = [];
-
-                if (app.planFilter === 'active') list = targetsOnly.filter(t => !t.completed && !t.failed);
-                else if (app.planFilter === 'today') list = targetsOnly.filter(t => t.deadline === today && !t.failed);
-                else list = targetsOnly.filter(t => t.completed).sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''));
-
-                const prioWeight = { High: 1, Medium: 2, Low: 3 };
-                if (app.planFilter !== 'done') {
-                    list.sort((a, b) => (a.deadline || '').localeCompare(b.deadline || '') || prioWeight[a.priority] - prioWeight[b.priority]);
-                }
-
-                if (list.length === 0) {
-                    container.innerHTML = `<div class="text-center py-12 text-xs font-mono text-slate-400">No targets in this view.</div>`;
-                    return;
-                }
-
-                const catColors = {
-                    Study: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
-                    Practice: 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400',
-                    Exercise: 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400',
-                    Work: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
-                };
-
-                container.innerHTML = list.map(t => {
-                    const pColor = t.priority === 'High' ? 'text-red-500' : (t.priority === 'Medium' ? 'text-amber-500' : 'text-blue-500');
-                    const isOverdue = !t.completed && t.deadline < today;
-                    const cat = t.category || 'Study';
-                    const catCls = catColors[cat] || 'bg-slate-100 dark:bg-zinc-800 text-slate-500';
-                    const sysHtml = (!t.completed && (t.identity || t.trigger || t.minAction || t.safetyNet)) ? `
-                        <div class="mt-2.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 space-y-1 text-[11px] text-slate-600 dark:text-zinc-400">
-                            ${t.identity ? `<div><span class="font-bold uppercase text-[9px] text-slate-400 mr-1.5">Identity:</span>${escapeHTML(t.identity)}</div>` : ''}
-                            ${t.trigger ? `<div><span class="font-bold uppercase text-[9px] text-slate-400 mr-1.5">Trigger:</span>${escapeHTML(t.trigger)}</div>` : ''}
-                            ${t.minAction ? `<div><span class="font-bold uppercase text-[9px] text-slate-400 mr-1.5">Min Act:</span>${escapeHTML(t.minAction)}</div>` : ''}
-                            ${t.safetyNet ? `<div><span class="font-bold uppercase text-[9px] text-slate-400 mr-1.5">Safety:</span>${escapeHTML(t.safetyNet)}</div>` : ''}
-                        </div>` : '';
-
-                    const customHex = app.getColorHex(t.colorId);
-                    const colorStyle = customHex ? `style="border-left: 4px solid ${customHex};"` : '';
-                    return `
-                    <div ${colorStyle} class="bg-white dark:bg-zinc-900 border ${isOverdue ? 'border-red-300 dark:border-red-900/60' : 'border-slate-200 dark:border-zinc-800'} rounded-2xl p-4">
-                        <div class="flex items-start gap-3">
-                            <button onclick="app.toggleTask('${t.id}')" class="mt-0.5 w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${t.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-zinc-700 hover:border-blue-500'}">
-                                ${t.completed ? '<i class="fas fa-check text-[10px]"></i>' : ''}
-                            </button>
-                            <div class="flex-1 min-w-0">
-                                <div class="font-bold text-sm ${t.completed ? 'line-through text-slate-400' : ''}">${escapeHTML(t.title)}</div>
-                                <div class="flex flex-wrap items-center gap-2 mt-1 text-[10px] font-mono">
-                                    <span class="px-1.5 py-0.5 rounded font-bold uppercase ${catCls}">${escapeHTML(cat)}</span>
-                                    <span class="${isOverdue ? 'text-red-500 font-bold' : 'text-slate-400'}"><i class="far fa-calendar mr-1"></i>${t.deadline}</span>
-                                    <span class="${pColor} font-bold uppercase">${t.priority}</span>
-                                    ${t.recurring ? '<span class="text-indigo-500 font-bold uppercase"><i class="fas fa-redo mr-1"></i>Habit</span>' : ''}
-                                </div>
-                                ${sysHtml}
-                            </div>
-                            <div class="flex items-center gap-2 text-slate-400 shrink-0">
-                                ${!t.completed ? `<button onclick="app.failTask('${t.id}')" title="Log Failure" class="p-1.5 hover:text-red-500"><i class="fas fa-times-circle text-xs"></i></button>` : ''}
-                                <button onclick="app.openTaskModal('${t.id}')" title="Edit" class="p-1.5 hover:text-blue-500"><i class="fas fa-pen text-xs"></i></button>
-                                <button onclick="app.deleteTask('${t.id}')" title="Delete" class="p-1.5 hover:text-red-500"><i class="fas fa-trash text-xs"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
+                if (app.draftVision) app.renderVisionPlannerUI();
             },
+
 
             setTaskModalMode: (mode) => {
                 document.getElementById('t-item-type').value = mode;
@@ -2158,11 +2119,11 @@
                 if (id) {
                     const idx = app.tasks.findIndex(x => x.id === id);
                     if (idx > -1) {
-                        app.tasks[idx] = { ...app.tasks[idx], ...payload };
+                        app.tasks[idx] = { ...app.tasks[idx], ...payload, dirty: true, updatedAt: Date.now() };
                         savedItem = app.tasks[idx];
                     }
                 } else {
-                    savedItem = { id: 't_' + Date.now(), ...payload, completed: false, failed: false, completedAt: null };
+                    savedItem = { id: 't_' + Date.now(), ...payload, completed: false, failed: false, completedAt: null, dirty: true, updatedAt: Date.now() };
                     app.tasks.push(savedItem);
                 }
 
@@ -2171,9 +2132,6 @@
                 if (app.currentTab === 'plan') app.renderPlan();
                 if (app.currentTab === 'schedule') app.renderSchedule();
                 if (app.currentTab === 'stats') app.renderStats();
-                if (savedItem && app.isGCalConnected() && (!savedItem.recurring || savedItem.gtaskId)) {
-                    app.gcalPushItem(savedItem);
-                }
             },
 
             toggleTask: (id) => {
@@ -2182,13 +2140,13 @@
                 t.completed = !t.completed;
                 t.completedAt = t.completed ? app.getTodayISO() : null;
                 if (t.completed) { t.failed = false; t.failReason = ''; }
+                t.dirty = true;
+                t.updatedAt = Date.now();
                 app.save();
                 if (app.currentTab === 'plan') app.renderPlan();
                 if (app.currentTab === 'schedule') app.renderSchedule();
                 if (app.currentTab === 'stats') app.renderStats();
-                if (app.isGCalConnected() && (!t.recurring || t.gtaskId)) app.gcalPushItem(t);
             },
-
 
             failTask: (id) => {
                 const t = app.tasks.find(x => x.id === id);
@@ -2199,8 +2157,13 @@
                 t.completed = false;
                 t.completedAt = null;
                 t.failReason = reason.trim() || 'No excuse provided.';
+                t.dirty = true;
+                t.updatedAt = Date.now();
                 app.save();
                 app.renderPlan();
+                if (app.currentTab === 'schedule') app.renderSchedule();
+                if (app.currentTab === 'stats') app.renderStats();
+                if (app.activeScheduleDayISO) app.openScheduleDayModal(app.activeScheduleDayISO);
             },
 
             reviveTask: (id) => {
@@ -2209,6 +2172,8 @@
                 t.failed = false;
                 t.failReason = '';
                 t.deadline = app.getTodayISO();
+                t.dirty = true;
+                t.updatedAt = Date.now();
                 app.save();
                 app.renderStats();
             },
@@ -2434,9 +2399,10 @@
                     if (failed && m.penalty) penalties.push(`${m.label}: ${m.penalty}`);
                 });
 
+                const prevLogTs = (app.logs[dateStr] && app.logs[dateStr].updatedAt) || 0;
                 app.logs[dateStr] = {
                     date: dateStr,
-                    updatedAt: Date.now(),
+                    updatedAt: Math.max(Date.now(), prevLogTs + 1000),
                     mistakes: JSON.parse(JSON.stringify(app.tempMistakes)),
                     dietMeals: JSON.parse(JSON.stringify(app.tempMeals)),
                     study: document.getElementById('log-study').value,
@@ -2601,8 +2567,9 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
-                                <button onclick="app.closeModal('schedule-day-modal'); app.openTaskModal('${t.id}')" class="p-1.5 text-slate-400 hover:text-blue-500"><i class="fas fa-pen text-xs"></i></button>
-                                <button onclick="app.deleteTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fas fa-trash text-xs"></i></button>
+                                ${!t.completed ? `<button onclick="app.failTask('${t.id}')" title="Log Failure (Graveyard)" class="p-1.5 text-slate-400 hover:text-amber-500"><i class="fas fa-skull text-xs"></i></button>` : ''}
+                                <button onclick="app.closeModal('schedule-day-modal'); app.openTaskModal('${t.id}')" title="Edit" class="p-1.5 text-slate-400 hover:text-blue-500"><i class="fas fa-pen text-xs"></i></button>
+                                <button onclick="app.deleteTask('${t.id}')" title="Delete" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fas fa-trash text-xs"></i></button>
                             </div>
                         </div>`;
                     }).join('');
@@ -2786,11 +2753,18 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             },
 
+            markVisionDirty: (dateStr, v) => {
+                v.updatedAt = Math.max(Date.now(), (v.updatedAt || 0) + 1000);
+                if (!Array.isArray(app.dirtyVisionDates)) app.dirtyVisionDates = [];
+                if (!app.dirtyVisionDates.includes(dateStr)) app.dirtyVisionDates.push(dateStr);
+                localStorage.setItem('strict_dirty_visions', JSON.stringify(app.dirtyVisionDates));
+            },
+
             toggleVRPriority: (dateStr, idx) => {
                 const v = app.visions[dateStr];
                 if (!v || !v.priorities || !v.priorities[idx]) return;
                 v.priorities[idx].done = !v.priorities[idx].done;
-                v.updatedAt = Date.now();
+                app.markVisionDirty(dateStr, v);
                 app.save();
                 app.renderVisionVsReality();
             },
@@ -2801,9 +2775,10 @@
                 t.completed = !t.completed;
                 t.completedAt = t.completed ? app.vrDate : null;
                 if (t.completed) { t.failed = false; t.failReason = ''; }
+                t.dirty = true;
+                t.updatedAt = Date.now();
                 app.save();
                 app.renderVisionVsReality();
-                if (app.isGCalConnected() && (!t.recurring || t.gtaskId)) app.gcalPushItem(t);
             },
 
             setVRBlockStatus: (dateStr, blockId, status) => {
@@ -2813,7 +2788,7 @@
                 const blk = v.blocks.find(b => b.id === blockId);
                 if (!blk) return;
                 blk.status = blk.status === status ? 'pending' : status;
-                v.updatedAt = Date.now();
+                app.markVisionDirty(dateStr, v);
                 app.save();
                 app.renderVisionVsReality();
             },
@@ -2825,8 +2800,48 @@
                 const blk = v.blocks.find(b => b.id === blockId);
                 if (!blk) return;
                 blk.actual = val.trim();
-                v.updatedAt = Date.now();
+                app.markVisionDirty(dateStr, v);
                 app.save();
+            },
+
+            calcIntervalHours: (start, end) => {
+                if (!start || !end || start === end) return 0;
+                const [sH, sM] = start.split(':').map(Number);
+                const [eH, eM] = end.split(':').map(Number);
+                let diff = (eH * 60 + eM) - (sH * 60 + sM);
+                if (diff < 0) diff += 24 * 60;
+                return parseFloat((diff / 60).toFixed(2));
+            },
+
+            findOverlappingBlock: (start, end, ignoreId = null) => {
+                const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+                const toSegs = (s, e) => {
+                    const sm = toMin(s), em = toMin(e);
+                    return em > sm ? [[sm, em]] : [[sm, 1440], [0, em]];
+                };
+                const newSegs = toSegs(start, end);
+                const existing = (app.draftVision && Array.isArray(app.draftVision.blocks)) ? app.draftVision.blocks : [];
+                return existing.find(b => {
+                    if (!b || !b.start || !b.end || b.id === ignoreId) return false;
+                    if (b.type === 'wakeup' || b.type === 'sleep') return false;
+                    const bSegs = toSegs(b.start, b.end);
+                    return newSegs.some(([a1, a2]) => bSegs.some(([b1, b2]) => a1 < b2 && b1 < a2));
+                }) || null;
+            },
+
+            evalRoutineDelay: (start, end, loggedTime) => {
+                if (!loggedTime) return { state: 'pending', label: 'Not logged' };
+                const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+                const targetEnd = end || start;
+                if (!targetEnd) return { state: 'pending', label: 'No target' };
+                let diffEnd = toMin(loggedTime) - toMin(targetEnd);
+                if (diffEnd > 720) diffEnd -= 1440;
+                if (diffEnd < -720) diffEnd += 1440;
+                if (diffEnd <= 10) {
+                    const note = diffEnd <= 0 ? 'On time' : `+${diffEnd}m (OK)`;
+                    return { state: 'done', label: `${loggedTime} · ${note}` };
+                }
+                return { state: 'missed', label: `${loggedTime} · +${diffEnd}m late` };
             },
 
             renderVisionVsReality: () => {
@@ -2848,15 +2863,52 @@
                 const priorities = v && Array.isArray(v.priorities) ? v.priorities.filter(p => p.text && p.text.trim()) : [];
                 const blocks = app.normalizeVisionBlocks(v).slice().sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
+                // Sum planned hours per auto-tracked output category
+                const plannedHrs = { study: 0, practice: 0, revision: 0 };
+                blocks.forEach(b => {
+                    const tp = (b.type || 'other').toLowerCase();
+                    if (plannedHrs[tp] !== undefined) plannedHrs[tp] += app.calcIntervalHours(b.start, b.end);
+                });
+                const loggedHrs = {
+                    study: parseFloat(log.study) || 0,
+                    practice: parseFloat(log.practice) || 0,
+                    revision: parseFloat(log.revision) || 0
+                };
+
+                // Evaluate every block automatically (except 'other' which stays manual)
+                const evalBlocks = blocks.map(slot => {
+                    const tp = (slot.type || 'other').toLowerCase();
+                    if (tp === 'study' || tp === 'practice' || tp === 'revision') {
+                        const pTot = parseFloat(plannedHrs[tp].toFixed(2));
+                        const lTot = loggedHrs[tp];
+                        const dur = app.calcIntervalHours(slot.start, slot.end);
+                        const ratio = pTot > 0 ? Math.min(1, lTot / pTot) : 0;
+                        const state = ratio >= 0.999 ? 'done' : ratio > 0 ? 'partial' : 'pending';
+                        return { slot, type: tp, dur, score: ratio, state, detail: `${lTot}h / ${pTot}h logged` };
+                    }
+                    if (tp === 'exercise') {
+                        const hit = log.exercise === 'Yes';
+                        return { slot, type: tp, dur: app.calcIntervalHours(slot.start, slot.end), score: hit ? 1 : 0, state: hit ? 'done' : 'pending', detail: hit ? 'Logged: Yes' : 'Logged: No' };
+                    }
+                    if (tp === 'wakeup' || tp === 'sleep') {
+                        const res = app.evalRoutineDelay(slot.start, slot.end, tp === 'wakeup' ? log.wake : log.sleep);
+                        return { slot, type: tp, dur: 0, score: res.state === 'done' ? 1 : 0, state: res.state, detail: res.label };
+                    }
+                    const state = slot.status === 'done' ? 'done' : slot.status === 'missed' ? 'missed' : 'pending';
+                    return { slot, type: 'other', dur: app.calcIntervalHours(slot.start, slot.end), score: state === 'done' ? 1 : 0, state, detail: '' };
+                });
+
                 const prioTotal = priorities.length;
                 const prioDone = priorities.filter(p => p.done).length;
                 const taskTotal = dayTasks.length;
                 const taskDone = dayTasks.filter(t => t.completed).length;
-                const blockTotal = blocks.length;
-                const blockDone = blocks.filter(b => b.status === 'done').length;
+                const blockTotal = evalBlocks.length;
+                const blockScore = evalBlocks.reduce((acc, b) => acc + b.score, 0);
+                const blockDone = Number.isInteger(blockScore) ? blockScore : parseFloat(blockScore.toFixed(1));
 
                 const totalPlanned = prioTotal + taskTotal + blockTotal;
-                const totalExecuted = prioDone + taskDone + blockDone;
+                const totalExecuted = prioDone + taskDone + blockScore;
+                const totalExecutedDisplay = Number.isInteger(totalExecuted) ? totalExecuted : parseFloat(totalExecuted.toFixed(1));
                 const alignment = totalPlanned > 0 ? Math.round((totalExecuted / totalPlanned) * 100) : 0;
                 const gap = totalPlanned > 0 ? 100 - alignment : 0;
 
@@ -2884,7 +2936,7 @@
                             <div class="min-w-0">
                                 <span class="text-[8px] sm:text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${verdictCls}">${verdictText}</span>
                                 <h2 class="text-sm sm:text-base font-black tracking-tight mt-1 truncate">Vision vs Reality</h2>
-                                <p class="text-[10px] sm:text-[11px] text-slate-400 font-mono mt-0.5 truncate">${totalPlanned > 0 ? `Gap: <span class="text-rose-400 font-bold">${gap}%</span> (${totalExecuted}/${totalPlanned} hit)` : 'Plan your day to measure the gap'}</p>
+                                <p class="text-[10px] sm:text-[11px] text-slate-400 font-mono mt-0.5 truncate">${totalPlanned > 0 ? `Gap: <span class="text-rose-400 font-bold">${gap}%</span> (${totalExecutedDisplay}/${totalPlanned} hit)` : 'Plan your day to measure the gap'}</p>
                             </div>
                         </div>
                         <button onclick="app.openVisionPlannerFor('${dateStr}')" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors">
@@ -2958,38 +3010,93 @@
                 </div>`;
 
                 // 4. Time-Interval Blueprint Vision vs Reality
+                const typeBadgeCls = {
+                    study: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
+                    practice: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
+                    revision: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+                    exercise: 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
+                    wakeup: 'bg-yellow-500/15 text-amber-600 dark:text-amber-400',
+                    sleep: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',
+                    other: 'bg-slate-200 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400'
+                };
+                const summaryChips = ['study', 'practice', 'revision']
+                    .filter(k => plannedHrs[k] > 0)
+                    .map(k => {
+                        const p = parseFloat(plannedHrs[k].toFixed(2));
+                        const l = loggedHrs[k];
+                        const ok = l >= p - 0.01;
+                        return `<span class="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold border ${ok ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-500'}">${k.toUpperCase()}: ${l}h / ${p}h</span>`;
+                    }).join('');
+
                 const intervalsHtml = `
                 <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4">
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <h3 class="text-xs font-black uppercase tracking-widest text-slate-500">Time-Block Blueprint</h3>
-                            <p class="text-[10px] text-slate-400">Left: Planned interval · Right: What actually happened</p>
+                            <p class="text-[10px] text-slate-400">Output & routine blocks auto-sync from Log · Other blocks are manual</p>
                         </div>
                         <button onclick="app.openVisionPlannerFor('${dateStr}')" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">+ Edit Blocks</button>
                     </div>
-                    ${blocks.length === 0 ? `
+                    ${summaryChips ? `<div class="flex flex-wrap gap-1.5 mb-3">${summaryChips}</div>` : ''}
+                    ${evalBlocks.length === 0 ? `
                         <div class="text-center py-6 space-y-2">
                             <p class="text-xs font-mono text-slate-400">No time intervals planned for ${dateStr}.</p>
                             <button onclick="app.openVisionPlannerFor('${dateStr}')" class="px-3.5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold">Build Vision Schedule</button>
                         </div>
                     ` : `
                     <div class="space-y-2">
-                        ${blocks.map(slot => {
-                            const isDone = slot.status === 'done';
-                            const isMissed = slot.status === 'missed';
-                            const rowBorder = isDone ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/15' : isMissed ? 'border-rose-300 dark:border-rose-800 bg-rose-50/40 dark:bg-rose-950/15' : 'border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-950';
+                        ${evalBlocks.map(({ slot, type, dur, state, detail }) => {
+                            const isDone = state === 'done';
+                            const isPartial = state === 'partial';
+                            const isMissed = state === 'missed';
+                            const rowBorder = isDone
+                                ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/15'
+                                : isPartial
+                                    ? 'border-amber-300 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/15'
+                                    : isMissed
+                                        ? 'border-rose-300 dark:border-rose-800 bg-rose-50/40 dark:bg-rose-950/15'
+                                        : 'border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-950';
+                            const timeLabel = slot.end && slot.end !== slot.start ? `${slot.start}–${slot.end}` : slot.start;
+                            const badgeCls = typeBadgeCls[type] || typeBadgeCls.other;
+
+                            if (type === 'other') {
+                                return `
+                                <div class="p-3 rounded-xl border ${rowBorder} grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                                    <div class="sm:col-span-5 flex items-center gap-2 min-w-0">
+                                        <span class="text-[10px] font-mono font-black px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shrink-0">${escapeHTML(timeLabel)}</span>
+                                        <span class="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ${badgeCls}">Other</span>
+                                        <span class="text-xs font-bold truncate ${isDone ? 'text-emerald-700 dark:text-emerald-400' : ''}" title="${escapeHTML(slot.plan)}">${escapeHTML(slot.plan)}</span>
+                                    </div>
+                                    <div class="sm:col-span-5">
+                                        <input type="text" value="${escapeHTML(slot.actual || '')}" onchange="app.setVRBlockActual('${dateStr}', '${slot.id}', this.value)" placeholder="What actually happened?" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-[11px] outline-none">
+                                    </div>
+                                    <div class="sm:col-span-2 flex justify-end gap-1.5">
+                                        <button onclick="app.setVRBlockStatus('${dateStr}', '${slot.id}', 'done')" title="Executed" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors ${isDone ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-emerald-500'}"><i class="fas fa-check"></i></button>
+                                        <button onclick="app.setVRBlockStatus('${dateStr}', '${slot.id}', 'missed')" title="Missed" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors ${isMissed ? 'bg-rose-500 text-white' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-rose-500'}"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>`;
+                            }
+
+                            const statusPillCls = isDone
+                                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
+                                : isPartial
+                                    ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/50'
+                                    : isMissed
+                                        ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/50'
+                                        : 'bg-slate-200/70 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border-slate-300 dark:border-zinc-700';
+                            const statusIcon = isDone ? 'fa-check-circle' : isPartial ? 'fa-adjust' : isMissed ? 'fa-times-circle' : 'fa-clock';
+
                             return `
-                            <div class="p-3 rounded-xl border ${rowBorder} grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-                                <div class="sm:col-span-5 flex items-center gap-2 min-w-0">
-                                    <span class="text-[10px] font-mono font-black px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shrink-0">${escapeHTML(slot.start)}–${escapeHTML(slot.end)}</span>
-                                    <span class="text-xs font-bold truncate ${isDone ? 'text-emerald-700 dark:text-emerald-400' : ''}" title="${escapeHTML(slot.plan)}">${escapeHTML(slot.plan)}</span>
+                            <div class="p-2.5 sm:p-3 rounded-xl border ${rowBorder} space-y-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-[10px] font-mono font-black px-2 py-0.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shrink-0">${escapeHTML(timeLabel)}</span>
+                                    <span class="text-xs font-bold break-words leading-snug ${isDone ? 'text-emerald-700 dark:text-emerald-400' : ''}">${escapeHTML(slot.plan)}</span>
                                 </div>
-                                <div class="sm:col-span-5">
-                                    <input type="text" value="${escapeHTML(slot.actual || '')}" onchange="app.setVRBlockActual('${dateStr}', '${slot.id}', this.value)" placeholder="What actually happened?" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-[11px] outline-none">
-                                </div>
-                                <div class="sm:col-span-2 flex justify-end gap-1.5">
-                                    <button onclick="app.setVRBlockStatus('${dateStr}', '${slot.id}', 'done')" title="Executed" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors ${isDone ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-emerald-500'}"><i class="fas fa-check"></i></button>
-                                    <button onclick="app.setVRBlockStatus('${dateStr}', '${slot.id}', 'missed')" title="Missed" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors ${isMissed ? 'bg-rose-500 text-white' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-rose-500'}"><i class="fas fa-times"></i></button>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ${badgeCls}">${escapeHTML(type)}${dur > 0 && type !== 'exercise' ? ` · ${dur}h` : ''}</span>
+                                    <button onclick="app.jumpToLogDate('${dateStr}')" title="Open Log for ${dateStr}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-mono font-bold shrink-0 ${statusPillCls}">
+                                        <i class="fas ${statusIcon} text-[10px]"></i>${escapeHTML(detail)}
+                                    </button>
                                 </div>
                             </div>`;
                         }).join('')}
@@ -3114,14 +3221,21 @@
 
             // --- VISION PLANNER (IN PLAN TAB · CUSTOM TIME INTERVALS) ---
             loadVisionPlanner: (dateStr) => {
-                app.visionPlanDate = dateStr;
+                const targetDate = dateStr || app.getTodayISO();
+                app.visionPlanDate = targetDate;
+                localStorage.setItem('strict_vision_plan_date', targetDate);
+                app.editingBlockId = null;
+                const subBtn = document.getElementById('vp-int-submit-btn');
+                const canBtn = document.getElementById('vp-int-cancel-btn');
+                if (subBtn) subBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Add to Plan';
+                if (canBtn) canBtn.classList.add('hidden');
                 const dateEl = document.getElementById('vision-date-input');
-                if (dateEl) dateEl.value = dateStr;
+                if (dateEl) dateEl.value = targetDate;
 
-                const existing = app.visions[dateStr];
+                const existing = app.visions[targetDate];
                 app.draftVision = existing
                     ? JSON.parse(JSON.stringify(existing))
-                    : { date: dateStr, priorities: [{ text: '', done: false }, { text: '', done: false }], taskIds: [], blocks: [] };
+                    : { date: targetDate, priorities: [{ text: '', done: false }, { text: '', done: false }], taskIds: [], blocks: [] };
 
                 if (!Array.isArray(app.draftVision.priorities) || app.draftVision.priorities.length < 2) {
                     app.draftVision.priorities = [{ text: '', done: false }, { text: '', done: false }];
@@ -3131,6 +3245,12 @@
 
                 document.getElementById('vp-prio-1').value = app.draftVision.priorities[0].text || '';
                 document.getElementById('vp-prio-2').value = app.draftVision.priorities[1].text || '';
+                const wakeBlk = app.draftVision.blocks.find(b => b.type === 'wakeup');
+                const sleepBlk = app.draftVision.blocks.find(b => b.type === 'sleep');
+                document.getElementById('vp-wake-start').value = wakeBlk ? (wakeBlk.start || '') : '';
+                document.getElementById('vp-wake-end').value = wakeBlk ? (wakeBlk.end || '') : '';
+                document.getElementById('vp-sleep-start').value = sleepBlk ? (sleepBlk.start || '') : '';
+                document.getElementById('vp-sleep-end').value = sleepBlk ? (sleepBlk.end || '') : '';
                 app.renderVisionPlannerUI();
             },
 
@@ -3162,49 +3282,191 @@
                 app.renderVisionBlocksList();
             },
 
+            editingBlockId: null,
+
+            dirtyVisionDates: [],
+
+            persistDraftVision: () => {
+                if (!app.draftVision) return;
+                const dateStr = app.visionPlanDate || app.getTodayISO();
+                const prevTs = (app.visions[dateStr] && app.visions[dateStr].updatedAt) || 0;
+                app.draftVision.date = dateStr;
+                app.draftVision.updatedAt = Math.max(Date.now(), prevTs + 1000);
+                const p1 = document.getElementById('vp-prio-1');
+                const p2 = document.getElementById('vp-prio-2');
+                if (p1 && app.draftVision.priorities[0]) app.draftVision.priorities[0].text = p1.value.trim();
+                if (p2 && app.draftVision.priorities[1]) app.draftVision.priorities[1].text = p2.value.trim();
+
+                // Also keep Wakeup & Sleep in sync immediately
+                const wStart = document.getElementById('vp-wake-start')?.value || '';
+                const wEnd = document.getElementById('vp-wake-end')?.value || '';
+                const sStart = document.getElementById('vp-sleep-start')?.value || '';
+                const sEnd = document.getElementById('vp-sleep-end')?.value || '';
+                app.draftVision.blocks = (app.draftVision.blocks || []).filter(b => b.type !== 'wakeup' && b.type !== 'sleep');
+                if (wStart || wEnd) {
+                    app.draftVision.blocks.push({ id: 'premade_wakeup', type: 'wakeup', start: wStart || wEnd, end: wEnd || wStart, plan: 'Wakeup', status: 'pending', actual: '' });
+                }
+                if (sStart || sEnd) {
+                    app.draftVision.blocks.push({ id: 'premade_sleep', type: 'sleep', start: sStart || sEnd, end: sEnd || sStart, plan: 'Sleep', status: 'pending', actual: '' });
+                }
+
+                delete app.draftVision.hourly;
+                app.visions[dateStr] = JSON.parse(JSON.stringify(app.draftVision));
+                if (!Array.isArray(app.dirtyVisionDates)) app.dirtyVisionDates = [];
+                if (!app.dirtyVisionDates.includes(dateStr)) app.dirtyVisionDates.push(dateStr);
+                localStorage.setItem('strict_dirty_visions', JSON.stringify(app.dirtyVisionDates));
+                app.save();
+            },
+
             renderVisionBlocksList: () => {
                 const list = document.getElementById('vp-blocks-list');
-                const sorted = (app.draftVision.blocks || []).slice().sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+                if (!list) return;
+                if (!app.draftVision) {
+                    app.draftVision = { date: app.visionPlanDate || app.getTodayISO(), priorities: [{ text: '', done: false }, { text: '', done: false }], taskIds: [], blocks: [] };
+                }
+                const customOnly = (app.draftVision.blocks || []).filter(b => b.type !== 'wakeup' && b.type !== 'sleep');
+                const sorted = customOnly.slice().sort((a, b) => (a.start || '').localeCompare(b.start || ''));
                 if (sorted.length === 0) {
-                    list.innerHTML = `<p class="text-[11px] font-mono text-slate-400 text-center py-3">No time intervals added yet.</p>`;
+                    list.innerHTML = `<p class="text-[11px] font-mono text-slate-400 text-center py-3">No custom time intervals added yet.</p>`;
                     return;
                 }
-                list.innerHTML = sorted.map(b => `
-                    <div class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="text-[10px] font-mono font-black px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-blue-600 dark:text-blue-400 shrink-0">${escapeHTML(b.start)} – ${escapeHTML(b.end)}</span>
-                            <span class="text-xs font-semibold truncate">${escapeHTML(b.plan)}</span>
-                        </div>
-                        <button type="button" onclick="app.removeVisionBlock('${b.id}')" class="text-slate-400 hover:text-rose-500 p-1 shrink-0"><i class="fas fa-times text-xs"></i></button>
-                    </div>
-                `).join('');
+                const badgeCls = {
+                    study: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
+                    practice: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
+                    revision: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+                    exercise: 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
+                    other: 'bg-slate-200 dark:bg-zinc-800 text-slate-500'
+                };
+                list.innerHTML = `
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400 pt-1">Planned Intervals (${sorted.length})</div>
+                    ${sorted.map(b => {
+                        const tp = (b.type || 'other').toLowerCase();
+                        const dur = app.calcIntervalHours(b.start, b.end);
+                        const isEditing = app.editingBlockId === b.id;
+                        return `
+                        <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl ${isEditing ? 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600' : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800'} border">
+                            <div class="min-w-0 flex-1 space-y-1">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-[10px] font-mono font-black px-2 py-0.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-blue-600 dark:text-blue-400 shrink-0">${escapeHTML(b.start)} – ${escapeHTML(b.end)}</span>
+                                    <span class="text-xs font-semibold truncate">${escapeHTML(b.plan)}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${badgeCls[tp] || badgeCls.other}">${escapeHTML(tp)}${dur > 0 && tp !== 'other' && tp !== 'exercise' ? ` · ${dur}h` : ''}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="app.editVisionBlock('${b.id}')" title="Edit Interval" class="text-slate-400 hover:text-blue-500 p-1.5"><i class="fas fa-pen text-xs"></i></button>
+                                <button type="button" onclick="app.removeVisionBlock('${b.id}')" title="Delete Interval" class="text-slate-400 hover:text-rose-500 p-1.5"><i class="fas fa-times text-xs"></i></button>
+                            </div>
+                        </div>`;
+                    }).join('')}`;
+            },
+
+            editVisionBlock: (id) => {
+                if (!app.draftVision || !Array.isArray(app.draftVision.blocks)) return;
+                const blk = app.draftVision.blocks.find(b => b.id === id);
+                if (!blk) return;
+                app.editingBlockId = id;
+                document.getElementById('vp-int-start').value = blk.start || '05:00';
+                document.getElementById('vp-int-end').value = blk.end || '06:00';
+                const typeEl = document.getElementById('vp-int-type');
+                if (typeEl) typeEl.value = (blk.type || 'other').toLowerCase();
+                const planEl = document.getElementById('vp-int-plan');
+                if (planEl) { planEl.value = blk.plan || ''; planEl.focus(); }
+                const subBtn = document.getElementById('vp-int-submit-btn');
+                const canBtn = document.getElementById('vp-int-cancel-btn');
+                if (subBtn) subBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Update Interval';
+                if (canBtn) canBtn.classList.remove('hidden');
+                app.renderVisionBlocksList();
+            },
+
+            cancelEditVisionBlock: () => {
+                app.editingBlockId = null;
+                const planEl = document.getElementById('vp-int-plan');
+                if (planEl) planEl.value = '';
+                const subBtn = document.getElementById('vp-int-submit-btn');
+                const canBtn = document.getElementById('vp-int-cancel-btn');
+                if (subBtn) subBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Add to Plan';
+                if (canBtn) canBtn.classList.add('hidden');
+                app.renderVisionBlocksList();
             },
 
             addVisionBlock: () => {
-                const start = document.getElementById('vp-int-start').value;
-                const end = document.getElementById('vp-int-end').value;
-                const planEl = document.getElementById('vp-int-plan');
-                const plan = planEl.value.trim();
-                if (!start || !end || !plan) return;
+                if (!app.draftVision) {
+                    app.loadVisionPlanner(app.visionPlanDate || app.getTodayISO());
+                }
+                if (!Array.isArray(app.draftVision.blocks)) app.draftVision.blocks = [];
 
-                app.draftVision.blocks.push({
-                    id: 'b_' + Date.now() + Math.random().toString(36).slice(2, 5),
-                    start,
-                    end,
-                    plan,
-                    status: 'pending',
-                    actual: ''
-                });
-                planEl.value = '';
-                document.getElementById('vp-int-start').value = end;
-                const nextEndH = String((parseInt(end.split(':')[0], 10) + 1) % 24).padStart(2, '0') + ':' + end.split(':')[1];
-                document.getElementById('vp-int-end').value = nextEndH;
+                const startEl = document.getElementById('vp-int-start');
+                const endEl = document.getElementById('vp-int-end');
+                const start = startEl ? startEl.value : '';
+                const end = endEl ? endEl.value : '';
+                const type = document.getElementById('vp-int-type') ? document.getElementById('vp-int-type').value : 'other';
+                const planEl = document.getElementById('vp-int-plan');
+                let plan = planEl ? planEl.value.trim() : '';
+
+                if (!start || !end) {
+                    alert('Select both Start and End times.');
+                    return false;
+                }
+                if (start === end) {
+                    alert('Start and End time cannot be the same.');
+                    return false;
+                }
+                const conflict = app.findOverlappingBlock(start, end, app.editingBlockId);
+                if (conflict) {
+                    alert(`Time conflict: ${start}–${end} overlaps with existing interval "${conflict.plan}" (${conflict.start}–${conflict.end}). Edit or remove it first.`);
+                    return false;
+                }
+                if (!plan) {
+                    if (type === 'other') {
+                        if (planEl) planEl.focus();
+                        alert('Enter what you will do during this "Other" interval.');
+                        return false;
+                    }
+                    plan = type.charAt(0).toUpperCase() + type.slice(1);
+                }
+
+                if (app.editingBlockId) {
+                    const idx = app.draftVision.blocks.findIndex(b => b.id === app.editingBlockId);
+                    if (idx > -1) {
+                        app.draftVision.blocks[idx] = { ...app.draftVision.blocks[idx], type, start, end, plan };
+                    }
+                    app.editingBlockId = null;
+                    const subBtn = document.getElementById('vp-int-submit-btn');
+                    const canBtn = document.getElementById('vp-int-cancel-btn');
+                    if (subBtn) subBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Add to Plan';
+                    if (canBtn) canBtn.classList.add('hidden');
+                } else {
+                    app.draftVision.blocks.push({
+                        id: 'b_' + Date.now() + Math.random().toString(36).slice(2, 5),
+                        type,
+                        start,
+                        end,
+                        plan,
+                        status: 'pending',
+                        actual: ''
+                    });
+                    if (startEl) startEl.value = end;
+                    const parts = end.split(':');
+                    if (endEl && parts.length === 2) {
+                        const nextEndH = String((parseInt(parts[0], 10) + 1) % 24).padStart(2, '0') + ':' + parts[1];
+                        endEl.value = nextEndH;
+                    }
+                }
+
+                if (planEl) planEl.value = '';
                 app.renderVisionBlocksList();
+                app.persistDraftVision();
+                return true;
             },
 
             removeVisionBlock: (id) => {
+                if (!app.draftVision || !Array.isArray(app.draftVision.blocks)) return;
                 app.draftVision.blocks = app.draftVision.blocks.filter(b => b.id !== id);
+                if (app.editingBlockId === id) app.cancelEditVisionBlock();
                 app.renderVisionBlocksList();
+                app.persistDraftVision();
             },
 
             pullTaskToVision: () => {
@@ -3212,49 +3474,56 @@
                 if (!id || app.draftVision.taskIds.includes(id)) return;
                 app.draftVision.taskIds.push(id);
                 app.renderVisionPlannerUI();
+                app.persistDraftVision();
             },
 
-            createTaskForVision: () => {
-                const titleEl = document.getElementById('vp-new-task-title');
-                const title = titleEl.value.trim();
+            openVisionTaskModal: () => {
+                const titleEl = document.getElementById('vp-modal-title');
+                const prioEl = document.getElementById('vp-modal-prio');
+                if (titleEl) titleEl.value = '';
+                if (prioEl) prioEl.value = 'Medium';
+                document.getElementById('vision-task-modal').classList.add('open');
+                setTimeout(() => { if (titleEl) titleEl.focus(); }, 60);
+            },
+
+            createTaskForVision: (e) => {
+                if (e) e.preventDefault();
+                const titleEl = document.getElementById('vp-modal-title');
+                const title = titleEl ? titleEl.value.trim() : '';
                 if (!title) return;
                 const newTask = {
                     id: 't_' + Date.now(),
                     itemType: 'task',
                     category: 'Study',
                     title,
-                    priority: document.getElementById('vp-new-task-prio').value,
-                    deadline: app.visionPlanDate,
+                    priority: document.getElementById('vp-modal-prio').value,
+                    deadline: app.visionPlanDate || app.getTodayISO(),
+                    colorId: '',
                     recurring: false,
                     recurringDays: [],
                     identity: '', trigger: '', minAction: '', safetyNet: '',
-                    completed: false, failed: false, completedAt: null
+                    completed: false, failed: false, completedAt: null,
+                    dirty: true,
+                    updatedAt: Date.now()
                 };
                 app.tasks.push(newTask);
                 app.draftVision.taskIds.push(newTask.id);
-                titleEl.value = '';
-                app.save();
+                app.closeModal('vision-task-modal');
                 app.renderVisionPlannerUI();
+                app.persistDraftVision();
             },
 
             removeTaskFromVision: (id) => {
                 app.draftVision.taskIds = app.draftVision.taskIds.filter(x => x !== id);
                 app.renderVisionPlannerUI();
+                app.persistDraftVision();
             },
 
             saveVisionPlan: () => {
                 if (document.getElementById('vp-int-plan').value.trim()) {
-                    app.addVisionBlock();
+                    if (!app.addVisionBlock()) return;
                 }
-
-                app.draftVision.date = app.visionPlanDate;
-                app.draftVision.updatedAt = Date.now();
-                app.draftVision.priorities[0].text = document.getElementById('vp-prio-1').value.trim();
-                app.draftVision.priorities[1].text = document.getElementById('vp-prio-2').value.trim();
-                delete app.draftVision.hourly;
-
-                app.visions[app.visionPlanDate] = JSON.parse(JSON.stringify(app.draftVision));
-                app.save();
+                app.persistDraftVision();
 
                 const btn = document.getElementById('btn-save-vision');
                 const orig = btn.innerText;
@@ -3464,9 +3733,19 @@
                     };
                 }
 
-                if (app.chartInstance) app.chartInstance.destroy();
-                const ctx = document.getElementById('chart-biometrics').getContext('2d');
-                app.chartInstance = new Chart(ctx, chartCfg);
+                const chartTextCol = document.documentElement.classList.contains('dark') ? '#a1a1aa' : '#64748b';
+                chartCfg.options = chartCfg.options || {};
+                chartCfg.options.color = chartTextCol;
+                if (chartCfg.options.scales) {
+                    Object.values(chartCfg.options.scales).forEach(ax => {
+                        ax.ticks = Object.assign({ color: chartTextCol }, ax.ticks || {});
+                    });
+                }
+                if (typeof Chart !== 'undefined') {
+                    if (app.chartInstance) app.chartInstance.destroy();
+                    const ctx = document.getElementById('chart-biometrics').getContext('2d');
+                    app.chartInstance = new Chart(ctx, chartCfg);
+                }
 
                 // Graveyard
                 const gy = document.getElementById('graveyard-list');
@@ -3556,10 +3835,10 @@
                 app.isSyncing = true;
                 app.needsResync = false;
                 app.updateGCalStatusUI(true);
-                const reqVersion = app.syncVersion;
 
                 try {
                     app.processRecurring();
+                    const reqVersion = app.syncVersion;
                     const bodyStr = JSON.stringify({
                         secret: app.syncKey,
                         manual: !silent,
@@ -3591,7 +3870,18 @@
                         app.logs = data.logs || {};
                         app.markers = data.markers || [];
                         app.markersUpdatedAt = data.markersUpdatedAt || app.markersUpdatedAt;
-                        app.visions = data.visions || {};
+                        const serverVisions = data.visions || {};
+                        const mergedVisions = { ...serverVisions };
+                        (app.dirtyVisionDates || []).forEach(d => {
+                            const loc = app.visions[d];
+                            const srv = serverVisions[d];
+                            if (loc && (!srv || (loc.updatedAt || 0) > (srv.updatedAt || 0))) {
+                                mergedVisions[d] = loc;
+                            }
+                        });
+                        app.visions = mergedVisions;
+                        app.dirtyVisionDates = [];
+                        localStorage.setItem('strict_dirty_visions', '[]');
                         app.pendingDeletes = [];
                         app.pendingRestores = [];
                         app.pendingPurges = [];
@@ -3600,10 +3890,18 @@
                         app.save(true);
                         app.updateGCalStatusUI(false);
 
-                        if (app.currentTab === 'plan') app.setPlanSubTab(app.planSubTab);
+                        if (app.currentTab === 'plan') {
+                            const planView = document.getElementById('view-plan');
+                            const isTypingInPlan = app.editingBlockId || (planView && document.activeElement && planView.contains(document.activeElement) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName));
+                            if (!isTypingInPlan) app.setPlanSubTab(app.planSubTab);
+                        }
                         if (app.currentTab === 'schedule') app.renderSchedule();
                         if (app.currentTab === 'stats') app.renderStats();
-                        if (app.currentTab === 'log') app.setLogSubTab(app.logSubTab);
+                        if (app.currentTab === 'log') {
+                            const journalPanel = document.getElementById('log-panel-journal');
+                            const isTypingInJournal = app.logSubTab === 'journal' && journalPanel && document.activeElement && journalPanel.contains(document.activeElement) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName);
+                            if (!isTypingInJournal) app.setLogSubTab(app.logSubTab);
+                        }
 
                         if (!silent && data.stats) {
                             const s = data.stats;
@@ -3667,6 +3965,7 @@
             toggleTheme: () => {
                 const isDark = document.documentElement.classList.toggle('dark');
                 localStorage.setItem('strict_theme', isDark ? 'dark' : 'light');
+                if (app.currentTab === 'stats' && app.statsSubTab === 'detailed') app.renderDetailedStats();
             },
 
             exportData: () => {
@@ -3683,10 +3982,19 @@
                 reader.onload = (e) => {
                     try {
                         const parsed = JSON.parse(e.target.result);
-                        if (Array.isArray(parsed.tasks)) app.tasks = parsed.tasks;
-                        if (parsed.logs && typeof parsed.logs === 'object') app.logs = parsed.logs;
-                        if (Array.isArray(parsed.markers)) app.markers = parsed.markers;
-                        if (parsed.visions && typeof parsed.visions === 'object') app.visions = parsed.visions;
+                        const nowMs = Date.now();
+                        if (Array.isArray(parsed.tasks)) app.tasks = parsed.tasks.map(t => ({ ...t, dirty: true, updatedAt: nowMs }));
+                        if (parsed.logs && typeof parsed.logs === 'object') {
+                            Object.keys(parsed.logs).forEach(d => { parsed.logs[d].updatedAt = nowMs; });
+                            app.logs = parsed.logs;
+                        }
+                        if (Array.isArray(parsed.markers)) { app.markers = parsed.markers; app.markersUpdatedAt = nowMs; }
+                        if (parsed.visions && typeof parsed.visions === 'object') {
+                            Object.keys(parsed.visions).forEach(d => { parsed.visions[d].updatedAt = nowMs; });
+                            app.visions = parsed.visions;
+                            app.dirtyVisionDates = Object.keys(parsed.visions);
+                            localStorage.setItem('strict_dirty_visions', JSON.stringify(app.dirtyVisionDates));
+                        }
                         app.save();
                         app.closeModal('settings-modal');
                         app.switchTab(app.currentTab);
@@ -3701,10 +4009,12 @@
 
             factoryReset: () => {
                 if (!confirm('Erase ALL tasks, habits, visions, and logs? This cannot be undone.')) return;
-                localStorage.removeItem('strict_tasks');
-                localStorage.removeItem('strict_logs');
-                localStorage.removeItem('strict_markers');
-                localStorage.removeItem('strict_visions');
+                [
+                    'strict_tasks', 'strict_logs', 'strict_markers', 'strict_visions',
+                    'strict_trash', 'strict_pending_deletes', 'strict_pending_restores',
+                    'strict_pending_purges', 'strict_dirty_visions', 'strict_vision_plan_date',
+                    'strict_markers_ts'
+                ].forEach(k => localStorage.removeItem(k));
                 location.reload();
             }
         };
