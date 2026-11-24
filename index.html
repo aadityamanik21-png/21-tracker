@@ -673,6 +673,9 @@
                         <button onclick="app.setScheduleMode('all')" id="sched-mode-all" class="px-2.5 py-1 rounded-lg">Timeline</button>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="app.openRecycleBin()" title="Recycle Bin" class="px-2 py-1 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 border border-slate-200 dark:border-zinc-700 text-[11px] font-bold active:scale-95 transition-all flex items-center gap-1">
+                            <i class="fas fa-trash-restore text-[10px]"></i><span id="sched-trash-count" class="font-mono text-[10px]">0</span>
+                        </button>
                         <button onclick="app.openTaskModal(null, 'event')" class="px-2.5 py-1 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-[11px] font-bold active:scale-95 transition-all">+ Event</button>
                         <button onclick="app.openTaskModal(null, 'task')" class="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold active:scale-95 transition-all">+ Target</button>
                     </div>
@@ -790,6 +793,13 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Date</label>
                     <input type="date" id="t-deadline" required class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                </div>
+
+                <!-- Color Picker (Syncs to Google Calendar for Events) -->
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Color</label>
+                    <input type="hidden" id="t-color" value="">
+                    <div id="t-color-picker" class="flex flex-wrap items-center gap-2"></div>
                 </div>
 
                 <!-- TARGET-ONLY FIELDS -->
@@ -913,6 +923,41 @@
         </div>
     </div>
 
+    <!-- MODAL: SCHEDULE DAY DETAIL (FULL UNTRUNCATED NAMES) -->
+    <div id="schedule-day-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('schedule-day-modal')">
+        <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800 space-y-3">
+            <div class="flex justify-between items-start gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
+                <div>
+                    <h3 id="sd-title" class="font-black text-base">--</h3>
+                    <p id="sd-subtitle" class="text-[10px] font-mono uppercase tracking-widest text-slate-400">--</p>
+                </div>
+                <button onclick="app.closeModal('schedule-day-modal')" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 shrink-0"><i class="fas fa-times text-xs"></i></button>
+            </div>
+            <div class="flex gap-2">
+                <button id="sd-add-event" class="flex-1 py-2 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-xs font-bold">+ Event on this day</button>
+                <button id="sd-add-task" class="flex-1 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold">+ Target on this day</button>
+            </div>
+            <div id="sd-list" class="space-y-2.5"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: RECYCLE BIN -->
+    <div id="recycle-bin-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('recycle-bin-modal')">
+        <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-3">
+                <div>
+                    <h3 class="font-bold text-base flex items-center gap-2"><i class="fas fa-trash-restore text-rose-500"></i>Recycle Bin</h3>
+                    <p class="text-[10px] font-mono text-slate-400">Hidden from Google Calendar until restored</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="app.emptyTrash()" class="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-[10px] font-bold uppercase">Empty</button>
+                    <button onclick="app.closeModal('recycle-bin-modal')" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500"><i class="fas fa-times text-xs"></i></button>
+                </div>
+            </div>
+            <div id="recycle-bin-list" class="space-y-2 max-h-[60vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
     <!-- MODAL: SETTINGS -->
     <div id="settings-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('settings-modal')">
         <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800 space-y-3">
@@ -950,6 +995,10 @@
             </div>
             <button onclick="app.toggleTheme()" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs font-bold">
                 <span><i class="fas fa-adjust mr-2 text-blue-500"></i>Toggle Dark / Light Mode</span>
+                <i class="fas fa-chevron-right text-slate-400"></i>
+            </button>
+            <button onclick="app.closeModal('settings-modal'); app.openRecycleBin();" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs font-bold">
+                <span><i class="fas fa-trash-restore mr-2 text-rose-500"></i>Recycle Bin (<span id="settings-trash-count">0</span>)</span>
                 <i class="fas fa-chevron-right text-slate-400"></i>
             </button>
             <button onclick="app.exportData()" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs font-bold">
@@ -1012,8 +1061,36 @@
             chartInstance: null,
             syncUrl: localStorage.getItem('strict_sync_url') || '',
             syncKey: localStorage.getItem('strict_sync_key') || '',
+            trash: [],
             pendingDeletes: [],
+            pendingRestores: [],
+            pendingPurges: [],
             markersUpdatedAt: 0,
+            colorPalette: [
+                { id: '', name: 'Default', hex: '#64748b' },
+                { id: '11', name: 'Tomato', hex: '#ef4444' },
+                { id: '6', name: 'Tangerine', hex: '#f97316' },
+                { id: '5', name: 'Banana', hex: '#eab308' },
+                { id: '10', name: 'Basil', hex: '#10b981' },
+                { id: '7', name: 'Peacock', hex: '#06b6d4' },
+                { id: '9', name: 'Blueberry', hex: '#3b82f6' },
+                { id: '3', name: 'Grape', hex: '#a855f7' },
+                { id: '4', name: 'Flamingo', hex: '#ec4899' }
+            ],
+            getColorHex: (colorId) => {
+                const found = app.colorPalette.find(c => c.id === String(colorId || ''));
+                return found && found.id ? found.hex : '';
+            },
+            renderColorPicker: (selectedId = '') => {
+                const hidden = document.getElementById('t-color');
+                if (hidden) hidden.value = selectedId || '';
+                const wrap = document.getElementById('t-color-picker');
+                if (!wrap) return;
+                wrap.innerHTML = app.colorPalette.map(c => {
+                    const active = (selectedId || '') === c.id;
+                    return `<button type="button" onclick="app.renderColorPicker('${c.id}')" title="${c.name}" class="w-7 h-7 rounded-full flex items-center justify-center transition-transform ${active ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-zinc-900 scale-110' : 'opacity-80 hover:opacity-100'}" style="background:${c.id ? c.hex : 'transparent'}; ${c.id ? '' : 'border:2px dashed #94a3b8;'}">${active ? `<i class="fas fa-check text-[10px] ${c.id ? 'text-white' : 'text-slate-500'}"></i>` : ''}</button>`;
+                }).join('');
+            },
             syncTimer: null,
             isSyncing: false,
             lastSyncOk: false,
@@ -1088,10 +1165,14 @@
                     app.logs = JSON.parse(localStorage.getItem('strict_logs')) || {};
                     app.markers = JSON.parse(localStorage.getItem('strict_markers')) || [];
                     app.visions = JSON.parse(localStorage.getItem('strict_visions')) || {};
+                    app.trash = JSON.parse(localStorage.getItem('strict_trash')) || [];
                     app.pendingDeletes = JSON.parse(localStorage.getItem('strict_pending_deletes')) || [];
+                    app.pendingRestores = JSON.parse(localStorage.getItem('strict_pending_restores')) || [];
+                    app.pendingPurges = JSON.parse(localStorage.getItem('strict_pending_purges')) || [];
                     app.markersUpdatedAt = parseInt(localStorage.getItem('strict_markers_ts'), 10) || 0;
                 } catch (e) {
-                    app.tasks = []; app.logs = {}; app.markers = []; app.visions = {}; app.pendingDeletes = [];
+                    app.tasks = []; app.trash = []; app.logs = {}; app.markers = []; app.visions = {};
+                    app.pendingDeletes = []; app.pendingRestores = []; app.pendingPurges = [];
                 }
 
                 app.processRecurring();
@@ -1123,8 +1204,16 @@
                 localStorage.setItem('strict_logs', JSON.stringify(app.logs));
                 localStorage.setItem('strict_markers', JSON.stringify(app.markers));
                 localStorage.setItem('strict_visions', JSON.stringify(app.visions));
+                localStorage.setItem('strict_trash', JSON.stringify(app.trash));
                 localStorage.setItem('strict_pending_deletes', JSON.stringify(app.pendingDeletes));
+                localStorage.setItem('strict_pending_restores', JSON.stringify(app.pendingRestores));
+                localStorage.setItem('strict_pending_purges', JSON.stringify(app.pendingPurges));
                 localStorage.setItem('strict_markers_ts', String(app.markersUpdatedAt));
+                const tc = app.trash.length;
+                const sc = document.getElementById('sched-trash-count');
+                const stc = document.getElementById('settings-trash-count');
+                if (sc) sc.innerText = tc;
+                if (stc) stc.innerText = tc;
                 app.updateHeaderMetrics();
                 if (!skipAutoSync && app.isGCalConnected()) app.scheduleAutoSync();
             },
@@ -1923,8 +2012,10 @@
                             ${t.safetyNet ? `<div><span class="font-bold uppercase text-[9px] text-slate-400 mr-1.5">Safety:</span>${escapeHTML(t.safetyNet)}</div>` : ''}
                         </div>` : '';
 
+                    const customHex = app.getColorHex(t.colorId);
+                    const colorStyle = customHex ? `style="border-left: 4px solid ${customHex};"` : '';
                     return `
-                    <div class="bg-white dark:bg-zinc-900 border ${isOverdue ? 'border-red-300 dark:border-red-900/60' : 'border-slate-200 dark:border-zinc-800'} rounded-2xl p-4">
+                    <div ${colorStyle} class="bg-white dark:bg-zinc-900 border ${isOverdue ? 'border-red-300 dark:border-red-900/60' : 'border-slate-200 dark:border-zinc-800'} rounded-2xl p-4">
                         <div class="flex items-start gap-3">
                             <button onclick="app.toggleTask('${t.id}')" class="mt-0.5 w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${t.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-zinc-700 hover:border-blue-500'}">
                                 ${t.completed ? '<i class="fas fa-check text-[10px]"></i>' : ''}
@@ -1967,12 +2058,13 @@
                 subBtn.className = `w-full py-3 ${isEvent ? 'bg-indigo-600' : 'bg-blue-600'} text-white font-bold text-sm rounded-xl`;
             },
 
-            openTaskModal: (id = null, forceMode = 'task') => {
+            openTaskModal: (id = null, forceMode = 'task', presetDate = null) => {
                 document.getElementById('t-id').value = '';
                 document.getElementById('t-title').value = '';
                 document.getElementById('t-category').value = 'Study';
                 document.getElementById('t-priority').value = 'Medium';
-                document.getElementById('t-deadline').value = app.getTodayISO();
+                document.getElementById('t-deadline').value = presetDate || app.getTodayISO();
+                app.renderColorPicker('');
                 document.getElementById('t-recurring').checked = false;
                 document.getElementById('t-days-wrap').classList.add('hidden');
                 document.getElementById('t-identity').value = '';
@@ -2003,6 +2095,7 @@
                         document.getElementById('t-start-time').value = t.startTime || '';
                         document.getElementById('t-end-time').value = t.endTime || '';
                         document.getElementById('t-event-notes').value = t.eventNotes || '';
+                        app.renderColorPicker(t.colorId || '');
                         if (t.recurringDays) {
                             t.recurringDays.forEach(d => {
                                 const btn = document.querySelector(`.day-toggle[data-day="${d}"]`);
@@ -2029,6 +2122,7 @@
                     category: isEvent ? 'Event' : document.getElementById('t-category').value,
                     priority: isEvent ? 'Medium' : document.getElementById('t-priority').value,
                     deadline: document.getElementById('t-deadline').value,
+                    colorId: document.getElementById('t-color') ? document.getElementById('t-color').value : '',
                     startTime: isEvent ? document.getElementById('t-start-time').value : '',
                     endTime: isEvent ? document.getElementById('t-end-time').value : '',
                     eventNotes: isEvent ? document.getElementById('t-event-notes').value.trim() : '',
@@ -2100,14 +2194,89 @@
             },
 
             deleteTask: (id) => {
-                if (!confirm('Delete this item permanently?')) return;
                 const target = app.tasks.find(x => x.id === id);
+                if (!target) return;
+                if (!confirm(`Move "${target.title}" to Recycle Bin? It will be removed from Google Calendar until restored.`)) return;
+
                 app.tasks = app.tasks.filter(x => x.id !== id);
+                app.pendingDeletes.push({
+                    id: target.id,
+                    gtaskId: target.gtaskId || null,
+                    gcalId: target.gcalId || null,
+                    itemType: target.itemType || 'task'
+                });
+                const trashed = { ...target, gtaskId: null, gcalId: null, deletedAt: Date.now() };
+                app.trash.unshift(trashed);
+
                 app.save();
                 if (app.currentTab === 'plan') app.renderPlan();
                 if (app.currentTab === 'schedule') app.renderSchedule();
                 if (app.currentTab === 'stats') app.renderStats();
-                if (target && app.isGCalConnected()) app.gcalDeleteItem(target);
+                if (app.activeScheduleDayISO) app.openScheduleDayModal(app.activeScheduleDayISO);
+            },
+
+            openRecycleBin: () => {
+                const list = document.getElementById('recycle-bin-list');
+                const sorted = (app.trash || []).slice().sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
+                if (sorted.length === 0) {
+                    list.innerHTML = `<div class="text-center py-8 text-xs font-mono text-slate-400">Recycle Bin is empty.</div>`;
+                } else {
+                    list.innerHTML = sorted.map(t => {
+                        const isEv = t.itemType === 'event';
+                        const hex = app.getColorHex(t.colorId);
+                        const style = hex ? `style="border-left: 4px solid ${hex};"` : '';
+                        return `
+                        <div ${style} class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-bold break-words whitespace-normal">${escapeHTML(t.title)}</div>
+                                <div class="flex flex-wrap items-center gap-2 mt-1 text-[10px] font-mono text-slate-400">
+                                    <span class="px-1.5 py-0.5 rounded uppercase font-bold ${isEv ? 'bg-indigo-500/15 text-indigo-500' : 'bg-blue-500/15 text-blue-500'}">${isEv ? 'Event' : escapeHTML(t.category || 'Task')}</span>
+                                    <span><i class="far fa-calendar mr-1"></i>${t.deadline || '--'}</span>
+                                    ${t.startTime ? `<span>${escapeHTML(t.startTime)}${t.endTime ? '–' + escapeHTML(t.endTime) : ''}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button onclick="app.restoreFromTrash('${t.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-[10px] font-bold uppercase">Restore</button>
+                                <button onclick="app.purgeFromTrash('${t.id}')" title="Delete Forever" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-500 flex items-center justify-center"><i class="fas fa-times text-xs"></i></button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+                document.getElementById('recycle-bin-modal').classList.add('open');
+            },
+
+            restoreFromTrash: (id) => {
+                const item = app.trash.find(x => x.id === id);
+                if (!item) return;
+                app.trash = app.trash.filter(x => x.id !== id);
+                const restored = { ...item, gcalId: null, gtaskId: null, dirty: true, updatedAt: Date.now() };
+                delete restored.deletedAt;
+                app.tasks.push(restored);
+                app.pendingDeletes = app.pendingDeletes.filter(d => d.id !== id);
+                if (!app.pendingRestores.includes(id)) app.pendingRestores.push(id);
+
+                app.save();
+                app.openRecycleBin();
+                if (app.currentTab === 'plan') app.renderPlan();
+                if (app.currentTab === 'schedule') app.renderSchedule();
+                if (app.currentTab === 'stats') app.renderStats();
+            },
+
+            purgeFromTrash: (id) => {
+                if (!confirm('Delete permanently? This cannot be undone.')) return;
+                app.trash = app.trash.filter(x => x.id !== id);
+                if (!app.pendingPurges.includes(id)) app.pendingPurges.push(id);
+                app.save();
+                app.openRecycleBin();
+            },
+
+            emptyTrash: () => {
+                if (app.trash.length === 0) return;
+                if (!confirm(`Permanently delete all ${app.trash.length} items in Recycle Bin?`)) return;
+                app.trash.forEach(t => { if (!app.pendingPurges.includes(t.id)) app.pendingPurges.push(t.id); });
+                app.trash = [];
+                app.save();
+                app.openRecycleBin();
             },
 
             // --- DAILY LOG & CUSTOM MARKERS ---
@@ -2356,31 +2525,100 @@
                 app.renderSchedule();
             },
 
+            activeScheduleDayISO: null,
+
+            openScheduleDayModal: (iso) => {
+                app.activeScheduleDayISO = iso;
+                const [y, m, d] = iso.split('-').map(Number);
+                const dt = new Date(y, m - 1, d);
+                const dayItems = app.tasks
+                    .filter(t => t.deadline === iso && !t.failed)
+                    .sort((a, b) => (a.itemType === 'event' ? -1 : 1) || (a.startTime || '').localeCompare(b.startTime || ''));
+
+                const evCount = dayItems.filter(t => t.itemType === 'event').length;
+                const taskCount = dayItems.length - evCount;
+
+                document.getElementById('sd-title').innerText = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                document.getElementById('sd-subtitle').innerText = `${evCount} Events · ${taskCount} Targets`;
+                document.getElementById('sd-add-event').onclick = () => { app.closeModal('schedule-day-modal'); app.openTaskModal(null, 'event', iso); };
+                document.getElementById('sd-add-task').onclick = () => { app.closeModal('schedule-day-modal'); app.openTaskModal(null, 'task', iso); };
+
+                const listEl = document.getElementById('sd-list');
+                if (dayItems.length === 0) {
+                    listEl.innerHTML = `<div class="text-center py-8 text-xs font-mono text-slate-400">Nothing scheduled for ${iso}.</div>`;
+                } else {
+                    listEl.innerHTML = dayItems.map(t => {
+                        const isEv = t.itemType === 'event';
+                        const hex = app.getColorHex(t.colorId);
+                        const borderStyle = hex ? `style="border-left: 4px solid ${hex};"` : '';
+                        if (isEv) {
+                            const timeStr = t.startTime ? `${t.startTime}${t.endTime ? ' – ' + t.endTime : ''}` : 'All Day';
+                            return `
+                            <div ${borderStyle} class="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 space-y-1.5">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <span class="inline-block text-[9px] font-mono font-black uppercase px-1.5 py-0.5 rounded text-white mb-1" style="background:${hex || '#4f46e5'}">${escapeHTML(timeStr)}</span>
+                                        <div class="text-sm font-bold break-words whitespace-normal leading-snug">${escapeHTML(t.title)}</div>
+                                        ${t.eventNotes ? `<div class="text-xs text-slate-500 dark:text-zinc-400 mt-1 break-words whitespace-normal">${escapeHTML(t.eventNotes)}</div>` : ''}
+                                    </div>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        <button onclick="app.closeModal('schedule-day-modal'); app.openTaskModal('${t.id}')" class="p-1.5 text-slate-400 hover:text-blue-500"><i class="fas fa-pen text-xs"></i></button>
+                                        <button onclick="app.deleteTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fas fa-trash text-xs"></i></button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        }
+                        return `
+                        <div ${borderStyle} class="p-3 rounded-xl border ${t.completed ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50' : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800'} flex items-start justify-between gap-2.5">
+                            <button onclick="app.toggleTask('${t.id}'); app.openScheduleDayModal('${iso}');" class="mt-0.5 w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center ${t.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-zinc-700'}">
+                                ${t.completed ? '<i class="fas fa-check text-[10px]"></i>' : ''}
+                            </button>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-bold break-words whitespace-normal leading-snug ${t.completed ? 'line-through text-slate-400' : ''}">${escapeHTML(t.title)}</div>
+                                <div class="flex flex-wrap items-center gap-2 mt-1 text-[10px] font-mono text-slate-400">
+                                    <span class="uppercase font-bold" style="${hex ? `color:${hex}` : ''}">${escapeHTML(t.category || 'Study')}</span>
+                                    <span>${escapeHTML(t.priority || 'Medium')}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="app.closeModal('schedule-day-modal'); app.openTaskModal('${t.id}')" class="p-1.5 text-slate-400 hover:text-blue-500"><i class="fas fa-pen text-xs"></i></button>
+                                <button onclick="app.deleteTask('${t.id}')" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fas fa-trash text-xs"></i></button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+                document.getElementById('schedule-day-modal').classList.add('open');
+            },
+
             renderScheduleRowHTML: (t) => {
+                const hex = app.getColorHex(t.colorId);
                 if (t.itemType === 'event') {
                     const timeStr = t.startTime ? `${t.startTime}${t.endTime ? '–' + t.endTime : ''}` : 'All Day';
+                    const rowStyle = hex ? `style="background:${hex}1a; border-color:${hex}55; color:${hex};"` : '';
+                    const badgeStyle = hex ? `style="background:${hex};"` : '';
                     return `
-                    <div class="text-xs font-semibold px-2.5 py-2 rounded-lg flex justify-between items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/50 text-indigo-700 dark:text-indigo-300">
+                    <div ${rowStyle} class="text-xs font-semibold px-2.5 py-2 rounded-lg flex justify-between items-center gap-2 ${hex ? 'border' : 'bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/50 text-indigo-700 dark:text-indigo-300'}">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="text-[9px] font-mono font-black uppercase px-1.5 py-0.5 rounded bg-indigo-600 text-white shrink-0">${escapeHTML(timeStr)}</span>
+                            <span ${badgeStyle} class="text-[9px] font-mono font-black uppercase px-1.5 py-0.5 rounded ${hex ? '' : 'bg-indigo-600'} text-white shrink-0">${escapeHTML(timeStr)}</span>
                             <span class="truncate">${escapeHTML(t.title)}</span>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="app.openTaskModal('${t.id}')" class="opacity-60 hover:opacity-100 p-1"><i class="fas fa-pen text-[10px]"></i></button>
-                            <button onclick="app.deleteTask('${t.id}')" class="opacity-60 hover:text-rose-500 p-1"><i class="fas fa-trash text-[10px]"></i></button>
+                            <button onclick="event.stopPropagation(); app.openTaskModal('${t.id}')" class="opacity-60 hover:opacity-100 p-1"><i class="fas fa-pen text-[10px]"></i></button>
+                            <button onclick="event.stopPropagation(); app.deleteTask('${t.id}')" class="opacity-60 hover:text-rose-500 p-1"><i class="fas fa-trash text-[10px]"></i></button>
                         </div>
                     </div>`;
                 }
                 const cat = t.category || 'Study';
+                const taskStyle = hex && !t.completed ? `style="border-left: 3px solid ${hex};"` : '';
                 return `
-                <div class="text-xs font-semibold px-2.5 py-1.5 rounded-lg flex justify-between items-center gap-2 ${t.completed ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 line-through' : 'bg-slate-100 dark:bg-zinc-800'}">
-                    <button onclick="app.toggleTask('${t.id}')" class="flex items-center gap-2 min-w-0 flex-1 text-left">
+                <div ${taskStyle} class="text-xs font-semibold px-2.5 py-1.5 rounded-lg flex justify-between items-center gap-2 ${t.completed ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 line-through' : 'bg-slate-100 dark:bg-zinc-800'}">
+                    <button onclick="event.stopPropagation(); app.toggleTask('${t.id}')" class="flex items-center gap-2 min-w-0 flex-1 text-left">
                         <i class="${t.completed ? 'fas fa-check-circle text-emerald-500' : 'far fa-circle text-slate-400'} text-xs shrink-0"></i>
                         <span class="truncate">${escapeHTML(t.title)}</span>
                     </button>
                     <div class="flex items-center gap-2 shrink-0">
                         <span class="text-[9px] font-mono uppercase opacity-70">${escapeHTML(cat)}</span>
-                        <button onclick="app.openTaskModal('${t.id}')" class="opacity-50 hover:opacity-100"><i class="fas fa-pen text-[10px]"></i></button>
+                        <button onclick="event.stopPropagation(); app.openTaskModal('${t.id}')" class="opacity-50 hover:opacity-100"><i class="fas fa-pen text-[10px]"></i></button>
                     </div>
                 </div>`;
             },
@@ -2410,7 +2648,7 @@
                         const dayItems = valid.filter(t => t.deadline === iso).sort((a, b) => (a.itemType === 'event' ? -1 : 1) || (a.startTime || '').localeCompare(b.startTime || ''));
                         const isToday = iso === todayISO;
                         return `
-                        <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
+                        <div onclick="app.openScheduleDayModal('${iso}')" class="cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-colors bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
                             <div class="w-12 sm:w-16 shrink-0 text-center">
                                 <div class="text-sm sm:text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${dt.getDate()}</div>
                                 <div class="text-[9px] font-mono uppercase text-slate-400 mt-0.5">${dt.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</div>
@@ -2454,7 +2692,7 @@
                     const isToday = iso === todayISO;
 
                     html += `
-                    <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} ${isPastDay && isViewingCurrentMonth ? 'opacity-70' : ''} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
+                    <div onclick="app.openScheduleDayModal('${iso}')" class="cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-colors bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} ${isPastDay && isViewingCurrentMonth ? 'opacity-70' : ''} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
                         <div class="w-10 sm:w-12 shrink-0 text-center">
                             <div class="text-sm sm:text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${day}</div>
                             <div class="text-[9px] sm:text-[10px] font-mono uppercase text-slate-400">${dt.toLocaleDateString('en-US', { weekday: 'short' })}</div>
@@ -3299,22 +3537,28 @@
                             manual: !silent,
                             today: app.getTodayISO(),
                             tasks: app.tasks,
+                            trash: app.trash,
                             logs: app.logs,
                             markers: app.markers,
                             markersUpdatedAt: app.markersUpdatedAt,
                             visions: app.visions,
-                            pendingDeletes: app.pendingDeletes
+                            pendingDeletes: app.pendingDeletes,
+                            pendingRestores: app.pendingRestores,
+                            pendingPurges: app.pendingPurges
                         })
                     });
                     const data = await res.json();
                     if (!data.ok) throw new Error(data.error || 'Sync rejected');
 
                     app.tasks = data.tasks || [];
+                    app.trash = data.trash || [];
                     app.logs = data.logs || {};
                     app.markers = data.markers || [];
                     app.markersUpdatedAt = data.markersUpdatedAt || app.markersUpdatedAt;
                     app.visions = data.visions || {};
                     app.pendingDeletes = [];
+                    app.pendingRestores = [];
+                    app.pendingPurges = [];
                     app.lastSyncOk = true;
 
                     app.save(true);
@@ -3372,7 +3616,10 @@
                 document.getElementById('settings-modal').classList.add('open');
             },
 
-            closeModal: (id) => document.getElementById(id).classList.remove('open'),
+            closeModal: (id) => {
+                if (id === 'schedule-day-modal') app.activeScheduleDayISO = null;
+                document.getElementById(id).classList.remove('open');
+            },
 
             toggleTheme: () => {
                 const isDark = document.documentElement.classList.toggle('dark');
