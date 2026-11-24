@@ -2249,16 +2249,25 @@
                 app.renderSchedule();
             },
 
+            showPastCurrentMonth: false,
+
+            togglePastCurrentMonth: () => {
+                app.showPastCurrentMonth = !app.showPastCurrentMonth;
+                app.renderSchedule();
+            },
+
             shiftScheduleMonth: (delta) => {
                 const d = new Date(app.scheduleCursor);
                 d.setDate(1);
                 d.setMonth(d.getMonth() + delta);
                 app.scheduleCursor = d;
+                app.showPastCurrentMonth = false;
                 app.renderSchedule();
             },
 
             resetScheduleMonth: () => {
                 app.scheduleCursor = new Date();
+                app.showPastCurrentMonth = false;
                 app.renderSchedule();
             },
 
@@ -2337,18 +2346,30 @@
 
                 const now = new Date();
                 const isViewingPastMonth = (y < now.getFullYear()) || (y === now.getFullYear() && mo < now.getMonth());
+                const isViewingCurrentMonth = (y === now.getFullYear() && mo === now.getMonth());
+                const hasEarlierDays = isViewingCurrentMonth && now.getDate() > 1;
 
                 let html = '';
+                if (hasEarlierDays) {
+                    const monthShort = cur.toLocaleDateString('en-US', { month: 'short' });
+                    html += `
+                    <button onclick="app.togglePastCurrentMonth()" class="col-span-full w-full py-1.5 px-3 rounded-xl bg-slate-100/80 dark:bg-zinc-900 border border-dashed border-slate-300 dark:border-zinc-700 text-[11px] font-mono font-bold text-slate-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center gap-1.5 transition-colors">
+                        <i class="fas ${app.showPastCurrentMonth ? 'fa-chevron-up' : 'fa-history'} text-[10px]"></i>
+                        ${app.showPastCurrentMonth ? `Hide earlier days (${monthShort} 1–${now.getDate() - 1})` : `Show earlier days (${monthShort} 1–${now.getDate() - 1})`}
+                    </button>`;
+                }
+
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dt = new Date(y, mo, day);
                     const iso = app.formatISO(dt);
-                    if (!isViewingPastMonth && iso < todayISO) continue;
+                    const isPastDay = iso < todayISO;
+                    if (!isViewingPastMonth && isPastDay && !(isViewingCurrentMonth && app.showPastCurrentMonth)) continue;
 
                     const dayItems = app.tasks.filter(t => t.deadline === iso && !t.failed).sort((a, b) => (a.itemType === 'event' ? -1 : 1) || (a.startTime || '').localeCompare(b.startTime || ''));
                     const isToday = iso === todayISO;
 
                     html += `
-                    <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
+                    <div class="bg-white dark:bg-zinc-900 border ${isToday ? 'border-blue-500' : 'border-slate-200 dark:border-zinc-800'} ${isPastDay && isViewingCurrentMonth ? 'opacity-70' : ''} rounded-xl px-2.5 py-2 sm:p-3 flex gap-2.5 sm:gap-4 items-center">
                         <div class="w-10 sm:w-12 shrink-0 text-center">
                             <div class="text-sm sm:text-lg font-black leading-none ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${day}</div>
                             <div class="text-[9px] sm:text-[10px] font-mono uppercase text-slate-400">${dt.toLocaleDateString('en-US', { weekday: 'short' })}</div>
