@@ -63,28 +63,113 @@
 
         @media (min-width: 1024px) {
             body:not(.force-phone) { padding-bottom: 32px; }
+            body:not(.force-phone) header > div,
+            body:not(.force-phone) .app-shell { max-width: 1600px !important; }
             body:not(.force-phone) .app-shell { flex-direction: row; align-items: flex-start; }
             body:not(.force-phone) .side-rail {
-                display: flex; flex-direction: column; width: 220px; shrink: 0;
+                display: flex; flex-direction: column; width: 220px; flex-shrink: 0;
                 position: sticky; top: 57px; height: calc(100vh - 57px);
-                padding: 16px 12px; border-right: 1px solid rgba(148,163,184,0.2);
+                padding: 18px 14px; border-right: 1px solid rgba(148,163,184,0.18);
             }
             body:not(.force-phone) .bottom-nav { display: none; }
-            body:not(.force-phone) .content-wrap { max-width: 68rem; flex: 1; }
-            body:not(.force-phone) #plan-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-            body:not(.force-phone) #schedule-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            body:not(.force-phone) .content-wrap { max-width: none; flex: 1; padding: 20px 28px; min-width: 0; }
+
+            /* Keep Sub-Tab Switchers & Date Bar Crisp Instead of Stretched */
+            body:not(.force-phone) #view-stats > div:first-child,
+            body:not(.force-phone) #view-plan > div:first-child,
+            body:not(.force-phone) #view-log > div:first-child { max-width: 420px; }
+            body:not(.force-phone) #stats-panel-vision > div:first-child { max-width: 340px; }
+
+            /* Desktop Bento: Vision vs Reality */
+            body:not(.force-phone) #vr-content {
+                display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+                gap: 16px; align-items: start;
+            }
+            body:not(.force-phone) #vr-content > * { margin-top: 0 !important; }
+            body:not(.force-phone) .vr-hero { grid-column: span 5; }
+            body:not(.force-phone) .vr-habit { grid-column: span 7; }
+            body:not(.force-phone) .vr-intervals { grid-column: span 7; }
+            body:not(.force-phone) .vr-side { grid-column: span 5; }
+
+            /* Desktop Bento: Detailed Stats */
+            body:not(.force-phone) #stats-panel-detailed:not(.hidden) {
+                display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+                gap: 16px; align-items: stretch;
+            }
+            body:not(.force-phone) #stats-panel-detailed > * { margin-top: 0 !important; }
+            body:not(.force-phone) #stats-panel-detailed > :nth-child(1) { grid-column: span 4; grid-template-columns: 1fr; }
+            body:not(.force-phone) #stats-panel-detailed > :nth-child(2) { grid-column: span 8; }
+            body:not(.force-phone) #stats-panel-detailed > :nth-child(3) { grid-column: span 8; }
+            body:not(.force-phone) #stats-panel-detailed > :nth-child(3) .h-56 { height: 19rem; }
+            body:not(.force-phone) #stats-panel-detailed > :nth-child(4) { grid-column: span 4; display: flex; flex-direction: column; }
+            body:not(.force-phone) #graveyard-list { max-height: 19rem; flex: 1; }
+
+            /* Desktop Bento: Plan (Targets & Vision Planner) */
+            body:not(.force-phone) #plan-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+            body:not(.force-phone) #plan-list > * { margin-top: 0 !important; }
+            body:not(.force-phone) #vision-planner-card {
+                display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+                gap: 20px; align-items: start;
+            }
+            body:not(.force-phone) #vision-planner-card > * { margin-top: 0 !important; }
+            body:not(.force-phone) #vision-planner-card > :nth-child(1) { grid-column: 1 / -1; }
+            body:not(.force-phone) #vision-planner-card > :nth-child(2) { grid-column: 1 / span 5; grid-row: 2; }
+            body:not(.force-phone) #vision-planner-card > :nth-child(3) { grid-column: 1 / span 5; grid-row: 3; }
+            body:not(.force-phone) #vision-planner-card > :nth-child(4) { grid-column: 6 / span 7; grid-row: 2 / span 2; border-top: 0; padding-top: 0; }
+
+            /* Desktop Bento: Log (History & Journal) */
+            body:not(.force-phone) #log-panel-history:not(.hidden) {
+                display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+                gap: 16px; align-items: start;
+            }
+            body:not(.force-phone) #log-panel-history > * { margin-top: 0 !important; }
+            body:not(.force-phone) #log-panel-history > :nth-child(1) { grid-column: span 8; }
+            body:not(.force-phone) #log-panel-history > :nth-child(2) { grid-column: span 4; grid-template-columns: 1fr; gap: 14px; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) {
+                display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+                gap: 20px; align-items: start;
+            }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > * { margin-top: 0 !important; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(1) { grid-column: 1 / -1; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(2) { grid-column: 7 / span 6; grid-row: 2 / span 2; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(3),
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(4),
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(5),
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(6) { grid-column: 1 / span 6; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(7) { grid-column: 7 / span 6; grid-row: 4 / span 2; border-top: 0; padding-top: 0; }
+
+            /* Desktop Bento: Schedule */
+            body:not(.force-phone) #schedule-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+            body:not(.force-phone) #schedule-list > * { margin-top: 0 !important; }
+        }
+
+        @media (min-width: 1400px) {
+            body:not(.force-phone) #plan-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            body:not(.force-phone) #schedule-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
 
         /* Manual Force Desktop (even on narrow windows) */
         body.force-desktop { padding-bottom: 32px; }
+        body.force-desktop header > div,
+        body.force-desktop .app-shell { max-width: 1600px !important; }
         body.force-desktop .app-shell { flex-direction: row; align-items: flex-start; }
         body.force-desktop .side-rail {
-            display: flex; flex-direction: column; width: 220px; shrink: 0;
+            display: flex; flex-direction: column; width: 220px; flex-shrink: 0;
             position: sticky; top: 57px; height: calc(100vh - 57px);
-            padding: 16px 12px; border-right: 1px solid rgba(148,163,184,0.2);
+            padding: 18px 14px; border-right: 1px solid rgba(148,163,184,0.18);
         }
         body.force-desktop .bottom-nav { display: none; }
-        body.force-desktop .content-wrap { max-width: 68rem; flex: 1; }
+        body.force-desktop .content-wrap { max-width: none; flex: 1; padding: 20px 28px; min-width: 0; }
+        body.force-desktop #vr-content { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; align-items: start; }
+        body.force-desktop #vr-content > * { margin-top: 0 !important; }
+        body.force-desktop .vr-hero { grid-column: span 5; }
+        body.force-desktop .vr-habit { grid-column: span 7; }
+        body.force-desktop .vr-intervals { grid-column: span 7; }
+        body.force-desktop .vr-side { grid-column: span 5; }
+        body.force-desktop #plan-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+        body.force-desktop #plan-list > * { margin-top: 0 !important; }
+        body.force-desktop #schedule-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+        body.force-desktop #schedule-list > * { margin-top: 0 !important; }
 
         /* Manual Force Smartphone (even on wide screens) */
         body.force-phone { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
@@ -2758,7 +2843,12 @@
                     </div>`}
                 </div>`;
 
-                container.innerHTML = heroHtml + yearlyHabitHtml + intervalsHtml + prioHtml + tasksHtml + realityStripHtml;
+                container.innerHTML = `
+                    <div class="vr-hero">${heroHtml}</div>
+                    <div class="vr-habit">${yearlyHabitHtml}</div>
+                    <div class="vr-intervals">${intervalsHtml}</div>
+                    <div class="vr-side space-y-4">${prioHtml}${tasksHtml}${realityStripHtml}</div>
+                `;
             },
 
             // --- VISION PLANNER (IN PLAN TAB · CUSTOM TIME INTERVALS) ---
