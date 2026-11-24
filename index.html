@@ -264,14 +264,14 @@
             <button onclick="app.switchTab('stats')" id="rail-stats" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
                 <i class="fas fa-chart-pie w-4 text-center"></i><span>Stats & Audit</span>
             </button>
-            <button onclick="app.switchTab('plan')" id="rail-plan" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
-                <i class="fas fa-check-double w-4 text-center"></i><span>Plan & Vision</span>
-            </button>
             <button onclick="app.switchTab('log')" id="rail-log" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
                 <i class="fas fa-feather-alt w-4 text-center"></i><span>Log & Journal</span>
             </button>
             <button onclick="app.switchTab('schedule')" id="rail-schedule" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
                 <i class="far fa-calendar-alt w-4 text-center"></i><span>Schedule</span>
+            </button>
+            <button onclick="app.switchTab('plan')" id="rail-plan" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-colors text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900">
+                <i class="fas fa-check-double w-4 text-center"></i><span>Plan & Vision</span>
             </button>
         </aside>
 
@@ -293,13 +293,14 @@
             <!-- SUB-TAB 1: VISION vs REALITY -->
             <div id="stats-panel-vision" class="space-y-4">
                 <!-- Date Bar -->
-                <div class="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2.5">
-                    <button onclick="app.shiftVRDate(-1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-left"></i></button>
-                    <div class="flex items-center gap-2">
+                <div id="vr-date-bar" class="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2.5 transition-colors">
+                    <button onclick="app.shiftVRDate(-1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs shrink-0"><i class="fas fa-chevron-left"></i></button>
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 min-w-0">
                         <input type="date" id="vr-date-picker" onchange="app.setVRDate(this.value)" class="bg-transparent text-xs font-mono font-black outline-none text-center">
-                        <button onclick="app.setVRDate(app.getTodayISO())" class="px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
+                        <span id="vr-date-badge" class="px-2 py-0.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider">Today</span>
+                        <button id="vr-today-btn" onclick="app.setVRDate(app.getTodayISO())" class="hidden px-2 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold uppercase active:scale-95 transition-transform">Jump to Today</button>
                     </div>
-                    <button onclick="app.shiftVRDate(1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-right"></i></button>
+                    <button onclick="app.shiftVRDate(1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs shrink-0"><i class="fas fa-chevron-right"></i></button>
                 </div>
 
                 <!-- Dynamic Vision vs Reality Content -->
@@ -374,8 +375,10 @@
                                 <i class="fas fa-compass"></i> Plan Your Day
                             </h3>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="date" id="vision-date-input" onchange="app.loadVisionPlanner(this.value)" class="bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span id="vision-date-badge" class="px-2 py-1 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider">Today</span>
+                            <input type="date" id="vision-date-input" onchange="app.loadVisionPlanner(this.value)" class="bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none transition-colors">
+                            <button id="vision-today-btn" type="button" onclick="app.loadVisionPlanner(app.getTodayISO())" class="hidden px-2 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-800 text-[10px] font-bold uppercase active:scale-95 transition-transform">Today</button>
                             <button id="btn-save-vision" onclick="app.saveVisionPlan()" class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform">Save Plan</button>
                         </div>
                     </div>
@@ -543,12 +546,15 @@
 
             <!-- SUB-TAB B: JOURNAL (DATA ENTRY) -->
             <div id="log-panel-journal" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
+                <div class="flex flex-wrap justify-between items-center gap-2">
                     <div>
                         <h2 class="font-black text-sm uppercase tracking-wider">Journal Entry</h2>
                         <p class="text-[10px] text-slate-400 font-mono">Log Mistakes, Biometrics & Habits</p>
                     </div>
-                    <input type="date" id="log-date" onchange="app.loadLogDate(this.value)" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-1.5 text-xs font-mono font-bold outline-none">
+                    <div class="flex items-center gap-1.5">
+                        <button id="log-today-btn" type="button" onclick="app.loadLogDate(app.getTodayISO())" class="hidden px-2 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-800 text-[10px] font-bold uppercase active:scale-95 transition-transform">Today</button>
+                        <input type="date" id="log-date" onchange="app.loadLogDate(this.value)" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-1.5 text-xs font-mono font-bold outline-none transition-colors">
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 space-y-5">
@@ -712,14 +718,14 @@
             <button onclick="app.switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 px-4 py-1 text-blue-600 dark:text-blue-400">
                 <i class="fas fa-chart-pie text-base"></i><span class="text-[10px] font-bold uppercase">Stats</span>
             </button>
-            <button onclick="app.switchTab('plan')" id="nav-plan" class="flex flex-col items-center gap-1 px-4 py-1 text-slate-400 dark:text-zinc-500">
-                <i class="fas fa-check-double text-base"></i><span class="text-[10px] font-bold uppercase">Plan</span>
-            </button>
             <button onclick="app.switchTab('log')" id="nav-log" class="flex flex-col items-center gap-1 px-4 py-1 text-slate-400 dark:text-zinc-500">
                 <i class="fas fa-feather-alt text-base"></i><span class="text-[10px] font-bold uppercase">Log</span>
             </button>
             <button onclick="app.switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center gap-1 px-4 py-1 text-slate-400 dark:text-zinc-500">
                 <i class="far fa-calendar-alt text-base"></i><span class="text-[10px] font-bold uppercase">Schedule</span>
+            </button>
+            <button onclick="app.switchTab('plan')" id="nav-plan" class="flex flex-col items-center gap-1 px-4 py-1 text-slate-400 dark:text-zinc-500">
+                <i class="fas fa-check-double text-base"></i><span class="text-[10px] font-bold uppercase">Plan</span>
             </button>
         </div>
     </nav>
@@ -1126,11 +1132,14 @@
                     return `<button type="button" onclick="app.renderColorPicker('${c.id}')" title="${c.name}" class="w-7 h-7 rounded-full flex items-center justify-center transition-transform ${active ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-zinc-900 scale-110' : 'opacity-80 hover:opacity-100'}" style="background:${c.id ? c.hex : 'transparent'}; ${c.id ? '' : 'border:2px dashed #94a3b8;'}">${active ? `<i class="fas fa-check text-[10px] ${c.id ? 'text-white' : 'text-slate-500'}"></i>` : ''}</button>`;
                 }).join('');
             },
-              syncTimer: null,
+            syncTimer: null,
             isSyncing: false,
             lastSyncOk: false,
             syncVersion: 0,
             needsResync: false,
+            needsFullSync: false,
+            journalDirty: false,
+            lastActiveDate: '',
             scheduleMode: 'month', // 'month' | 'all'
 
             scheduleCursor: new Date(),
@@ -1150,6 +1159,39 @@
                 const [y, m, d] = iso.split('-').map(Number);
                 return app.formatISO(new Date(y, m - 1, d + days));
             },
+
+            updateDateIndicator: (dateStr, { inputId, barId, badgeId, todayBtnId, showDateInBadge = false }) => {
+                const today = app.getTodayISO();
+                const isToday = dateStr === today;
+                const isYesterday = dateStr === app.addDaysISO(today, -1);
+                const isTomorrow = dateStr === app.addDaysISO(today, 1);
+
+                let statusText = '● Today';
+                if (!isToday) {
+                    const rel = isYesterday ? 'Yesterday' : isTomorrow ? 'Tomorrow' : (dateStr < today ? 'Past Date' : 'Future Date');
+                    statusText = showDateInBadge ? `⚠ ${rel} (${dateStr})` : `⚠ ${rel}`;
+                }
+
+                const barEl = barId ? document.getElementById(barId) : null;
+                if (barEl) {
+                    barEl.className = `flex items-center justify-between gap-2 rounded-2xl p-2.5 border transition-colors ${isToday ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800' : 'bg-amber-50/70 dark:bg-amber-950/25 border-amber-400 dark:border-amber-700'}`;
+                }
+
+                const inputEl = inputId ? document.getElementById(inputId) : null;
+                if (inputEl && !barId) {
+                    inputEl.className = `rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none border transition-colors ${isToday ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-400 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300' : 'bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300'}`;
+                }
+
+                const badgeEl = badgeId ? document.getElementById(badgeId) : null;
+                if (badgeEl) {
+                    badgeEl.innerText = statusText;
+                    badgeEl.className = `px-2 py-0.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider ${isToday ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-300/70 dark:border-emerald-800' : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-400/80 dark:border-amber-700'}`;
+                }
+
+                const btnEl = todayBtnId ? document.getElementById(todayBtnId) : null;
+                if (btnEl) btnEl.classList.toggle('hidden', isToday);
+            },
+
 
             evalMarkerStatus: (marker, dateStr) => {
                 const val = app.logs[dateStr] && app.logs[dateStr].custom ? app.logs[dateStr].custom[marker.id] : '';
@@ -1214,9 +1256,10 @@
                 }
 
                 app.processRecurring();
-                app.currentLogDate = app.getTodayISO();
-                app.vrDate = app.getTodayISO();
-                app.visionPlanDate = localStorage.getItem('strict_vision_plan_date') || app.getTodayISO();
+                app.lastActiveDate = app.getTodayISO();
+                app.currentLogDate = app.lastActiveDate;
+                app.vrDate = app.lastActiveDate;
+                app.visionPlanDate = localStorage.getItem('strict_vision_plan_date') || app.lastActiveDate;
                 try { app.dirtyVisionDates = JSON.parse(localStorage.getItem('strict_dirty_visions')) || []; } catch (e) { app.dirtyVisionDates = []; }
 
                 document.querySelectorAll('.day-toggle').forEach(btn => {
@@ -1226,6 +1269,13 @@
                         btn.classList.toggle('border-blue-600');
                     });
                 });
+
+                const jPanel = document.getElementById('log-panel-journal');
+                if (jPanel) {
+                    const markJDirty = (e) => { if (e.target && e.target.id !== 'log-date') app.journalDirty = true; };
+                    jPanel.addEventListener('input', markJDirty);
+                    jPanel.addEventListener('change', markJDirty);
+                }
 
                 app.applyLayoutMode(app.layoutMode);
                 app.updateHeaderMetrics();
@@ -1237,6 +1287,24 @@
                     if (app.isGCalConnected()) app.syncGCal(true, false);
                 });
                 document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        const nowToday = app.getTodayISO();
+                        if (app.lastActiveDate && nowToday !== app.lastActiveDate) {
+                            if (app.vrDate === app.lastActiveDate) app.vrDate = nowToday;
+                            if (app.currentLogDate === app.lastActiveDate && !app.journalDirty) app.currentLogDate = nowToday;
+                            if (app.visionPlanDate === app.lastActiveDate) {
+                                app.visionPlanDate = nowToday;
+                                localStorage.setItem('strict_vision_plan_date', nowToday);
+                            }
+                            app.lastActiveDate = nowToday;
+                            app.processRecurring();
+                            app.updateHeaderMetrics();
+                            if (app.currentTab === 'stats') app.renderStats();
+                            if (app.currentTab === 'plan') app.setPlanSubTab(app.planSubTab);
+                            if (app.currentTab === 'log' && !app.journalDirty) app.setLogSubTab(app.logSubTab);
+                            if (app.currentTab === 'schedule') app.renderSchedule();
+                        }
+                    }
                     if (!app.isGCalConnected()) return;
                     if (document.visibilityState === 'hidden' && (app.syncTimer || app.needsResync)) {
                         if (app.syncTimer) { clearTimeout(app.syncTimer); app.syncTimer = null; }
@@ -1271,7 +1339,11 @@
                 app.updateHeaderMetrics();
                 if (!skipAutoSync) {
                     app.syncVersion++;
-                    if (app.isGCalConnected()) app.scheduleAutoSync();
+                    if (app.isGCalConnected()) {
+                        localStorage.setItem('strict_pending_sync', '1');
+                        app.updateGCalStatusUI(app.isSyncing);
+                        app.scheduleAutoSync();
+                    }
                 }
             },
 
@@ -1290,7 +1362,8 @@
                 let changed = false;
                 Object.values(latestByTitle).forEach(tpl => {
                     const hasToday = app.tasks.some(t => t.title === tpl.title && t.recurring && t.itemType !== 'event' && (t.deadline === today || t.completedAt === today));
-                    if (hasToday) return;
+                    const trashedToday = (app.trash || []).some(t => t.title === tpl.title && t.recurring && t.itemType !== 'event' && t.deadline === today);
+                    if (hasToday || trashedToday) return;
                     if (tpl.recurringDays && tpl.recurringDays.length > 0 && !tpl.recurringDays.includes(dayOfWeek)) return;
 
                     app.tasks.push({
@@ -1312,6 +1385,10 @@
             },
 
             switchTab: (tab) => {
+                if (app.currentTab === 'log' && app.logSubTab === 'journal' && tab !== 'log' && app.journalDirty) {
+                    if (!confirm('You have unsaved changes in Journal. Leave without saving?')) return;
+                    app.journalDirty = false;
+                }
                 app.currentTab = tab;
                 const titles = { stats: 'Audit', plan: 'Execution', log: 'Log', schedule: 'Agenda' };
                 document.getElementById('header-subtitle').innerText = titles[tab];
@@ -1338,11 +1415,17 @@
             },
 
             openLogSubTab: (subTab) => {
+                const label = subTab === 'journal' ? 'Log → Journal' : 'Log → History';
+                if (!confirm(`Switch to ${label}?`)) return;
                 app.logSubTab = subTab;
                 app.switchTab('log');
             },
 
             setLogSubTab: (sub) => {
+                if (app.logSubTab === 'journal' && sub !== 'journal' && app.journalDirty) {
+                    if (!confirm('You have unsaved changes in Journal. Leave without saving?')) return;
+                    app.journalDirty = false;
+                }
                 app.logSubTab = sub;
                 ['history', 'journal'].forEach(s => {
                     const btn = document.getElementById('subtab-' + s);
@@ -1365,6 +1448,8 @@
 
             jumpToLogDate: (dateStr) => {
                 if (dateStr > app.getTodayISO()) return;
+                const label = dateStr === app.getTodayISO() ? 'Today' : dateStr;
+                if (!confirm(`Switch to Log → Journal for ${label}?`)) return;
                 app.closeModal('heatmap-modal');
                 app.closeModal('log-detail-modal');
                 app.currentLogDate = dateStr;
@@ -1811,11 +1896,13 @@
                 textEl.value = '';
                 causeEl.value = '';
                 fixEl.value = '';
+                app.journalDirty = true;
                 app.renderJournalMistakes();
             },
 
             removeJournalMistake: (idx) => {
                 app.tempMistakes.splice(idx, 1);
+                app.journalDirty = true;
                 app.renderJournalMistakes();
             },
 
@@ -2117,15 +2204,37 @@
                     safetyNet: isEvent ? '' : document.getElementById('t-safety').value.trim()
                 };
 
+                if (isEvent) {
+                    if (payload.endTime && !payload.startTime) {
+                        alert('Select a Start Time when setting an End Time.');
+                        return;
+                    }
+                    if (payload.startTime && payload.endTime && payload.endTime <= payload.startTime) {
+                        alert('Event End Time must be later than Start Time.');
+                        return;
+                    }
+                }
+
+                const nowMs = Date.now();
                 let savedItem = null;
                 if (id) {
                     const idx = app.tasks.findIndex(x => x.id === id);
                     if (idx > -1) {
-                        app.tasks[idx] = { ...app.tasks[idx], ...payload, dirty: true, updatedAt: Date.now() };
+                        const prev = app.tasks[idx];
+                        if (prev.recurring && !payload.recurring) {
+                            app.tasks.forEach(t => {
+                                if (t.id !== id && t.recurring && t.itemType !== 'event' && t.title === prev.title) {
+                                    t.recurring = false;
+                                    t.dirty = true;
+                                    t.updatedAt = nowMs;
+                                }
+                            });
+                        }
+                        app.tasks[idx] = { ...prev, ...payload, dirty: true, updatedAt: nowMs };
                         savedItem = app.tasks[idx];
                     }
                 } else {
-                    savedItem = { id: 't_' + Date.now(), ...payload, completed: false, failed: false, completedAt: null, dirty: true, updatedAt: Date.now() };
+                    savedItem = { id: 't_' + nowMs, ...payload, completed: false, failed: false, completedAt: null, dirty: true, updatedAt: nowMs };
                     app.tasks.push(savedItem);
                 }
 
@@ -2283,9 +2392,13 @@
             },
 
             loadLogDate: (dateStr) => {
-                app.currentLogDate = dateStr;
-                document.getElementById('log-date-label').innerText = dateStr === app.getTodayISO() ? 'Today' : dateStr;
-                const entry = app.logs[dateStr] || {};
+                const targetDate = dateStr || app.getTodayISO();
+                app.journalDirty = false;
+                app.currentLogDate = targetDate;
+                const picker = document.getElementById('log-date');
+                if (picker && picker.value !== targetDate) picker.value = targetDate;
+                app.updateDateIndicator(targetDate, { inputId: 'log-date', badgeId: 'log-date-label', todayBtnId: 'log-today-btn', showDateInBadge: true });
+                const entry = app.logs[targetDate] || {};
 
                 app.tempMistakes = Array.isArray(entry.mistakes) ? JSON.parse(JSON.stringify(entry.mistakes)) : [];
                 document.getElementById('m-err-text').value = '';
@@ -2336,11 +2449,13 @@
                 app.tempMeals.push({ meal: app.selectedMealType, items });
                 inp.value = '';
                 app.selectedMealType = '';
+                app.journalDirty = true;
                 app.renderDietDetailsUI();
             },
 
             removeDietMeal: (idx) => {
                 app.tempMeals.splice(idx, 1);
+                app.journalDirty = true;
                 app.renderDietDetailsUI();
             },
 
@@ -2401,16 +2516,24 @@
                     if (failed && m.penalty) penalties.push(`${m.label}: ${m.penalty}`);
                 });
 
+                const clampNonNeg = (id) => {
+                    const el = document.getElementById(id);
+                    if (!el || el.value === '') return '';
+                    const n = parseFloat(el.value);
+                    if (isNaN(n) || n < 0) { el.value = '0'; return '0'; }
+                    return String(n);
+                };
+
                 const prevLogTs = (app.logs[dateStr] && app.logs[dateStr].updatedAt) || 0;
                 app.logs[dateStr] = {
                     date: dateStr,
                     updatedAt: Math.max(Date.now(), prevLogTs + 1000),
                     mistakes: JSON.parse(JSON.stringify(app.tempMistakes)),
                     dietMeals: JSON.parse(JSON.stringify(app.tempMeals)),
-                    study: document.getElementById('log-study').value,
-                    practice: document.getElementById('log-practice').value,
-                    revision: document.getElementById('log-revision').value,
-                    weight: document.getElementById('log-weight').value,
+                    study: clampNonNeg('log-study'),
+                    practice: clampNonNeg('log-practice'),
+                    revision: clampNonNeg('log-revision'),
+                    weight: clampNonNeg('log-weight'),
                     exercise: document.getElementById('log-exercise').value,
                     diet: document.getElementById('log-diet').value,
                     wake: document.getElementById('log-wake').value,
@@ -2422,6 +2545,7 @@
                     custom
                 };
 
+                app.journalDirty = false;
                 app.save();
 
                 if (penalties.length > 0) {
@@ -2441,8 +2565,28 @@
                 document.getElementById('marker-modal').classList.add('open');
             },
 
+            snapshotMarkerValues: () => {
+                const vals = {};
+                app.markers.forEach(m => {
+                    const el = document.getElementById('m_in_' + m.id);
+                    if (el && el.value !== '') vals[m.id] = el.value;
+                });
+                return vals;
+            },
+
+            restoreMarkerValues: (vals) => {
+                const savedCustom = (app.logs[app.currentLogDate] && app.logs[app.currentLogDate].custom) || {};
+                app.markers.forEach(m => {
+                    const el = document.getElementById('m_in_' + m.id);
+                    if (!el) return;
+                    if (vals[m.id] !== undefined) el.value = vals[m.id];
+                    else if (savedCustom[m.id] !== undefined) el.value = savedCustom[m.id];
+                });
+            },
+
             saveMarker: (e) => {
                 e.preventDefault();
+                const prevVals = app.snapshotMarkerValues();
                 app.markers.push({
                     id: 'm_' + Date.now(),
                     label: document.getElementById('m-label').value.trim(),
@@ -2456,16 +2600,18 @@
                 document.getElementById('m-penalty').value = '';
                 app.renderMarkerModalList();
                 app.renderMarkerInputs();
-                app.loadLogDate(app.currentLogDate);
+                app.restoreMarkerValues(prevVals);
             },
 
             deleteMarker: (id) => {
                 if (!confirm('Remove this habit marker?')) return;
+                const prevVals = app.snapshotMarkerValues();
                 app.markers = app.markers.filter(m => m.id !== id);
                 app.markersUpdatedAt = Date.now();
                 app.save();
                 app.renderMarkerModalList();
                 app.renderMarkerInputs();
+                app.restoreMarkerValues(prevVals);
             },
 
             renderMarkerModalList: () => {
@@ -2706,9 +2852,15 @@
 
             getSleepHoursForDate: (dateStr) => {
                 const todayLog = app.logs[dateStr];
+                if (!todayLog || !todayLog.wake) return null;
                 const prevLog = app.logs[app.addDaysISO(dateStr, -1)];
-                if (!prevLog || !prevLog.sleep || !todayLog || !todayLog.wake) return null;
-                return app.calcSleepHours(prevLog.sleep, todayLog.wake);
+                if (prevLog && prevLog.sleep) {
+                    return app.calcSleepHours(prevLog.sleep, todayLog.wake);
+                }
+                if (todayLog.sleep && todayLog.sleep < todayLog.wake) {
+                    return app.calcSleepHours(todayLog.sleep, todayLog.wake);
+                }
+                return null;
             },
 
             renderStats: () => {
@@ -2756,6 +2908,8 @@
             },
 
             openVisionPlannerFor: (dateStr) => {
+                const label = dateStr === app.getTodayISO() ? 'Today' : dateStr;
+                if (!confirm(`Switch to Plan tab for ${label}?`)) return;
                 app.visionPlanDate = dateStr;
                 app.planSubTab = 'vision';
                 app.switchTab('plan');
@@ -2856,6 +3010,7 @@
             renderVisionVsReality: () => {
                 const dateStr = app.vrDate || app.getTodayISO();
                 document.getElementById('vr-date-picker').value = dateStr;
+                app.updateDateIndicator(dateStr, { inputId: 'vr-date-picker', barId: 'vr-date-bar', badgeId: 'vr-date-badge', todayBtnId: 'vr-today-btn' });
                 const container = document.getElementById('vr-content');
                 const v = app.visions[dateStr];
                 const log = app.logs[dateStr] || {};
@@ -2884,16 +3039,17 @@
                     revision: parseFloat(log.revision) || 0
                 };
 
-                // Evaluate every block automatically (except 'other' which stays manual)
+                // Evaluate every block sequentially (waterfall credit for Study/Practice/Revision)
+                const remainingHrs = { ...loggedHrs };
                 const evalBlocks = blocks.map(slot => {
                     const tp = (slot.type || 'other').toLowerCase();
                     if (tp === 'study' || tp === 'practice' || tp === 'revision') {
-                        const pTot = parseFloat(plannedHrs[tp].toFixed(2));
-                        const lTot = loggedHrs[tp];
                         const dur = app.calcIntervalHours(slot.start, slot.end);
-                        const ratio = pTot > 0 ? Math.min(1, lTot / pTot) : 0;
+                        const allocated = dur > 0 ? Math.min(dur, remainingHrs[tp]) : 0;
+                        remainingHrs[tp] = Math.max(0, parseFloat((remainingHrs[tp] - allocated).toFixed(4)));
+                        const ratio = dur > 0 ? Math.min(1, allocated / dur) : 0;
                         const state = ratio >= 0.999 ? 'done' : ratio > 0 ? 'partial' : 'pending';
-                        return { slot, type: tp, dur, score: ratio, state, detail: `${lTot}h / ${pTot}h logged` };
+                        return { slot, type: tp, dur, score: ratio, state, detail: `${parseFloat(allocated.toFixed(2))}h / ${dur}h` };
                     }
                     if (tp === 'exercise') {
                         const hit = log.exercise === 'Yes';
@@ -3240,6 +3396,7 @@
                 if (canBtn) canBtn.classList.add('hidden');
                 const dateEl = document.getElementById('vision-date-input');
                 if (dateEl) dateEl.value = targetDate;
+                app.updateDateIndicator(targetDate, { inputId: 'vision-date-input', badgeId: 'vision-date-badge', todayBtnId: 'vision-today-btn' });
 
                 const existing = app.visions[targetDate];
                 app.draftVision = existing
@@ -3797,9 +3954,13 @@
                 if (btn) {
                     btn.className = `w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${app.lastSyncOk ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-blue-600'}`;
                 }
+                const hasPending = localStorage.getItem('strict_pending_sync') === '1';
+                if (btn && !syncing && hasPending) {
+                    btn.className = 'w-8 h-8 rounded-full border flex items-center justify-center transition-colors bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/50 text-amber-600 dark:text-amber-400';
+                }
                 if (badge) {
-                    badge.innerText = syncing ? 'Syncing...' : app.lastSyncOk ? 'Synced' : ready ? 'Ready' : 'Not Set';
-                    badge.className = `text-[9px] font-mono uppercase px-2 py-0.5 rounded ${app.lastSyncOk ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 'bg-slate-200 dark:bg-zinc-800 text-slate-500'}`;
+                    badge.innerText = syncing ? 'Syncing...' : hasPending ? 'Pending' : app.lastSyncOk ? 'Synced' : ready ? 'Ready' : 'Not Set';
+                    badge.className = `text-[9px] font-mono uppercase px-2 py-0.5 rounded ${hasPending && !syncing ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400' : app.lastSyncOk ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 'bg-slate-200 dark:bg-zinc-800 text-slate-500'}`;
                 }
             },
 
@@ -3839,10 +4000,13 @@
                 }
                 if (app.isSyncing) {
                     app.needsResync = true;
+                    if (!quickPush) app.needsFullSync = true;
                     return;
                 }
+                if (app.syncTimer) { clearTimeout(app.syncTimer); app.syncTimer = null; }
                 app.isSyncing = true;
                 app.needsResync = false;
+                if (!quickPush) app.needsFullSync = false;
                 app.updateGCalStatusUI(true);
 
                 try {
@@ -3894,6 +4058,7 @@
                         app.pendingDeletes = [];
                         app.pendingRestores = [];
                         app.pendingPurges = [];
+                        localStorage.removeItem('strict_pending_sync');
                         app.lastSyncOk = true;
 
                         app.save(true);
@@ -3904,11 +4069,18 @@
                             const isTypingInPlan = app.editingBlockId || (planView && document.activeElement && planView.contains(document.activeElement) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName));
                             if (!isTypingInPlan) app.setPlanSubTab(app.planSubTab);
                         }
-                        if (app.currentTab === 'schedule') app.renderSchedule();
-                        if (app.currentTab === 'stats') app.renderStats();
+                        if (app.currentTab === 'schedule') {
+                            app.renderSchedule();
+                            if (app.activeScheduleDayISO) app.openScheduleDayModal(app.activeScheduleDayISO);
+                        }
+                        if (app.currentTab === 'stats') {
+                            const statsView = document.getElementById('view-stats');
+                            const isTypingInStats = statsView && document.activeElement && statsView.contains(document.activeElement) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName);
+                            if (!isTypingInStats) app.renderStats();
+                        }
                         if (app.currentTab === 'log') {
                             const journalPanel = document.getElementById('log-panel-journal');
-                            const isTypingInJournal = app.logSubTab === 'journal' && journalPanel && document.activeElement && journalPanel.contains(document.activeElement) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName);
+                            const isTypingInJournal = app.logSubTab === 'journal' && (app.journalDirty || (journalPanel && document.activeElement && journalPanel.contains(document.activeElement) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)));
                             if (!isTypingInJournal) app.setLogSubTab(app.logSubTab);
                         }
 
@@ -3917,7 +4089,18 @@
                             alert(`Synced! Pushed ${s.pushed}, pulled ${s.pulledTasks} tasks & ${s.pulledEvents} events, removed ${s.removed}.`);
                         }
                     } else {
+                        if (Array.isArray(data.tasks)) {
+                            const idMap = new Map(data.tasks.map(t => [t.id, t]));
+                            app.tasks.forEach(t => {
+                                const srv = idMap.get(t.id);
+                                if (srv) {
+                                    if (!t.gcalId && srv.gcalId) t.gcalId = srv.gcalId;
+                                    if (!t.gtaskId && srv.gtaskId) t.gtaskId = srv.gtaskId;
+                                }
+                            });
+                        }
                         app.needsResync = true;
+                        if (!quickPush) app.needsFullSync = true;
                     }
                 } catch (e) {
                     app.lastSyncOk = false;
@@ -3925,9 +4108,11 @@
                     if (!silent) alert('Sync failed: ' + (e.message || 'Check your Apps Script URL, Secret Key, and internet connection.'));
                 } finally {
                     app.isSyncing = false;
-                    if (app.needsResync) {
+                    if (app.needsResync && navigator.onLine !== false) {
+                        const runQuick = !app.needsFullSync;
                         app.needsResync = false;
-                        app.syncGCal(true, true);
+                        app.needsFullSync = false;
+                        app.syncGCal(true, runQuick);
                     }
                 }
             },
@@ -3990,10 +4175,12 @@
                     pendingPurges: app.pendingPurges
                 };
                 const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
+                a.href = url;
                 a.download = `strict_tracker_backup_${app.getTodayISO()}.json`;
                 a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
             },
 
             importData: (input) => {
@@ -4010,7 +4197,7 @@
                         }
                         if (Array.isArray(parsed.markers)) {
                             app.markers = parsed.markers;
-                            app.markersUpdatedAt = parsed.markersUpdatedAt || nowMs;
+                            app.markersUpdatedAt = nowMs;
                         }
                         if (parsed.visions && typeof parsed.visions === 'object') {
                             Object.keys(parsed.visions).forEach(d => { parsed.visions[d].updatedAt = nowMs; });
@@ -4040,7 +4227,7 @@
                     'strict_tasks', 'strict_logs', 'strict_markers', 'strict_visions',
                     'strict_trash', 'strict_pending_deletes', 'strict_pending_restores',
                     'strict_pending_purges', 'strict_dirty_visions', 'strict_vision_plan_date',
-                    'strict_markers_ts'
+                    'strict_markers_ts', 'strict_pending_sync'
                 ].forEach(k => localStorage.removeItem(k));
                 location.reload();
             }
