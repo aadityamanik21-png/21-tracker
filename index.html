@@ -1703,7 +1703,7 @@
                 }
 
                 // 2. Biometrics & Output
-                const sleepHrs = app.calcSleepHours(entry.sleep, entry.wake);
+                const sleepHrs = app.getSleepHoursForDate(dateStr);
                 const bioHtml = `
                     <div class="grid grid-cols-3 gap-2">
                         <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-center">
@@ -2704,6 +2704,13 @@
                 return Math.min(18, parseFloat(dur.toFixed(1)));
             },
 
+            getSleepHoursForDate: (dateStr) => {
+                const todayLog = app.logs[dateStr];
+                const prevLog = app.logs[app.addDaysISO(dateStr, -1)];
+                if (!prevLog || !prevLog.sleep || !todayLog || !todayLog.wake) return null;
+                return app.calcSleepHours(prevLog.sleep, todayLog.wake);
+            },
+
             renderStats: () => {
                 app.setStatsSubTab(app.statsSubTab);
             },
@@ -3106,7 +3113,7 @@
                 </div>`;
 
                 // 5. Logged Reality Snapshot (Daily Output + Minimal Diet Meals)
-                const sleepHrs = app.calcSleepHours(log.sleep, log.wake);
+                const sleepHrs = app.getSleepHoursForDate(dateStr);
                 const mealsStrip = Array.isArray(log.dietMeals) && log.dietMeals.length > 0
                     ? `<div class="mt-2.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex flex-wrap gap-1.5">
                         ${log.dietMeals.map(dm => `<span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/30 text-[10px] text-teal-700 dark:text-teal-300"><span class="font-bold uppercase text-[8.5px] mr-1 opacity-75">${escapeHTML(dm.meal)}:</span>${escapeHTML(dm.items)}</span>`).join('')}
@@ -3562,7 +3569,7 @@
                     days14.push(app.formatISO(d));
                 }
 
-                const sleepArr = days14.map(d => app.logs[d] ? app.calcSleepHours(app.logs[d].sleep, app.logs[d].wake) : null);
+                const sleepArr = days14.map(d => app.getSleepHoursForDate(d));
                 const studyArr = days14.map(d => (app.logs[d] && app.logs[d].study) ? parseFloat(app.logs[d].study) : 0);
                 const practiceArr = days14.map(d => (app.logs[d] && app.logs[d].practice) ? parseFloat(app.logs[d].practice) : 0);
                 const revisionArr = days14.map(d => (app.logs[d] && app.logs[d].revision) ? parseFloat(app.logs[d].revision) : 0);
