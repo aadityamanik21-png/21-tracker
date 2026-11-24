@@ -3971,7 +3971,18 @@
             },
 
             exportData: () => {
-                const blob = new Blob([JSON.stringify({ tasks: app.tasks, logs: app.logs, markers: app.markers, visions: app.visions }, null, 2)], { type: 'application/json' });
+                const payload = {
+                    tasks: app.tasks,
+                    logs: app.logs,
+                    markers: app.markers,
+                    markersUpdatedAt: app.markersUpdatedAt,
+                    visions: app.visions,
+                    trash: app.trash,
+                    pendingDeletes: app.pendingDeletes,
+                    pendingRestores: app.pendingRestores,
+                    pendingPurges: app.pendingPurges
+                };
+                const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
                 a.download = `strict_tracker_backup_${app.getTodayISO()}.json`;
@@ -3990,13 +4001,20 @@
                             Object.keys(parsed.logs).forEach(d => { parsed.logs[d].updatedAt = nowMs; });
                             app.logs = parsed.logs;
                         }
-                        if (Array.isArray(parsed.markers)) { app.markers = parsed.markers; app.markersUpdatedAt = nowMs; }
+                        if (Array.isArray(parsed.markers)) {
+                            app.markers = parsed.markers;
+                            app.markersUpdatedAt = parsed.markersUpdatedAt || nowMs;
+                        }
                         if (parsed.visions && typeof parsed.visions === 'object') {
                             Object.keys(parsed.visions).forEach(d => { parsed.visions[d].updatedAt = nowMs; });
                             app.visions = parsed.visions;
                             app.dirtyVisionDates = Object.keys(parsed.visions);
                             localStorage.setItem('strict_dirty_visions', JSON.stringify(app.dirtyVisionDates));
                         }
+                        if (Array.isArray(parsed.trash)) app.trash = parsed.trash;
+                        if (Array.isArray(parsed.pendingDeletes)) app.pendingDeletes = parsed.pendingDeletes;
+                        if (Array.isArray(parsed.pendingRestores)) app.pendingRestores = parsed.pendingRestores;
+                        if (Array.isArray(parsed.pendingPurges)) app.pendingPurges = parsed.pendingPurges;
                         app.save();
                         app.closeModal('settings-modal');
                         app.switchTab(app.currentTab);
