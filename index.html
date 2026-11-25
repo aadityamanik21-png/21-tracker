@@ -228,9 +228,137 @@
         body.force-phone #circular-heatmap-wrap { max-width: 245px !important; }
         body.force-phone .modal-box { padding: 12px !important; }
         body.force-phone button, body.force-phone select, body.force-phone input[type="date"], body.force-phone input[type="time"] { min-height: 30px; }
+
+        /* Phone-in-Phone Visual Frame (Phone Only — Transparent on Desktop) */
+        #phone-bezel, #phone-screen { display: contents; }
+
+        @media (max-width: 1023px) {
+            body:not(.force-desktop).phone-framed {
+                height: 100dvh;
+                overflow: hidden;
+                padding: calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)) 10px !important;
+                background: var(--frame-bg, #050507) !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            body:not(.force-desktop).phone-framed #phone-bezel {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                max-width: 420px;
+                height: 100%;
+                max-height: 920px;
+                position: relative;
+                transition: border-radius 0.25s ease, box-shadow 0.25s ease;
+            }
+            body:not(.force-desktop).phone-framed #phone-screen {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-height: 0;
+                width: 100%;
+                overflow: hidden;
+                position: relative;
+                background-color: #f8fafc;
+            }
+            html.dark body:not(.force-desktop).phone-framed #phone-screen {
+                background-color: #09090b;
+            }
+            body:not(.force-desktop).phone-framed header {
+                position: relative;
+                top: auto;
+                flex-shrink: 0;
+                z-index: 20;
+            }
+            body:not(.force-desktop).phone-framed .app-shell {
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            body:not(.force-desktop).phone-framed .app-shell::-webkit-scrollbar { display: none; }
+            body:not(.force-desktop).phone-framed .content-wrap { padding-bottom: 18px; }
+            body:not(.force-desktop).phone-framed .bottom-nav {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                right: auto;
+                flex-shrink: 0;
+                z-index: 20;
+                padding-bottom: 6px !important;
+            }
+
+            /* iPhone Style (Rounded Metallic Titanium Bezel) */
+            body:not(.force-desktop).frame-iphone #phone-bezel {
+                padding: 8px;
+                border-radius: 44px;
+                background: linear-gradient(145deg, #52525b 0%, #27272a 30%, #71717a 55%, #18181b 100%);
+                box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.78), inset 0 0 0 1.5px rgba(255, 255, 255, 0.22), inset 0 0 0 4px #09090b;
+            }
+            body:not(.force-desktop).frame-iphone #phone-screen {
+                border-radius: 36px;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+            }
+            body:not(.force-desktop).frame-iphone header > div { padding-left: 18px; padding-right: 18px; }
+            body:not(.force-desktop).frame-iphone .bottom-nav { padding-bottom: 10px !important; }
+
+            /* Samsung Style (Sharp Boxy Ultra Bezel) */
+            body:not(.force-desktop).frame-samsung #phone-bezel {
+                padding: 6px;
+                border-radius: 12px;
+                background: linear-gradient(160deg, #3f3f46 0%, #18181b 40%, #27272a 75%, #09090b 100%);
+                box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 0 0 3px #050507;
+            }
+            body:not(.force-desktop).frame-samsung #phone-screen {
+                border-radius: 6px;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        /* Also support Manual Force Phone mode */
+        body.force-phone.phone-framed {
+            height: 100dvh;
+            overflow: hidden;
+            padding: calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)) 10px !important;
+            background: var(--frame-bg, #050507) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body.force-phone.phone-framed #phone-bezel {
+            display: flex; flex-direction: column; width: 100%; max-width: 420px; height: 100%; max-height: 920px; position: relative;
+        }
+        body.force-phone.phone-framed #phone-screen {
+            display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; overflow: hidden; position: relative; background-color: #f8fafc;
+        }
+        html.dark body.force-phone.phone-framed #phone-screen { background-color: #09090b; }
+        body.force-phone.phone-framed header { position: relative; top: auto; flex-shrink: 0; z-index: 20; }
+        body.force-phone.phone-framed .app-shell { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        body.force-phone.phone-framed .app-shell::-webkit-scrollbar { display: none; }
+        body.force-phone.phone-framed .content-wrap { padding-bottom: 18px; }
+        body.force-phone.phone-framed .bottom-nav { position: relative; bottom: auto; left: auto; right: auto; flex-shrink: 0; z-index: 20; padding-bottom: 6px !important; }
+        body.force-phone.frame-iphone #phone-bezel {
+            padding: 8px; border-radius: 44px;
+            background: linear-gradient(145deg, #52525b 0%, #27272a 30%, #71717a 55%, #18181b 100%);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.78), inset 0 0 0 1.5px rgba(255, 255, 255, 0.22), inset 0 0 0 4px #09090b;
+        }
+        body.force-phone.frame-iphone #phone-screen { border-radius: 36px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06); }
+        body.force-phone.frame-iphone header > div { padding-left: 18px; padding-right: 18px; }
+        body.force-phone.frame-iphone .bottom-nav { padding-bottom: 10px !important; }
+        body.force-phone.frame-samsung #phone-bezel {
+            padding: 6px; border-radius: 12px;
+            background: linear-gradient(160deg, #3f3f46 0%, #18181b 40%, #27272a 75%, #09090b 100%);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 0 0 3px #050507;
+        }
+        body.force-phone.frame-samsung #phone-screen { border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen transition-colors">
+    <div id="phone-bezel">
+    <div id="phone-screen">
 
     <!-- Top Header -->
     <header class="sticky top-0 z-40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
@@ -730,6 +858,9 @@
         </div>
     </nav>
 
+    </div>
+    </div>
+
     <!-- MODAL: LOG DAY DETAIL POPUP (FROM CIRCULAR HEATMAP) -->
     <div id="log-detail-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('log-detail-modal')">
         <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800 space-y-4">
@@ -1034,6 +1165,30 @@
                     <button type="button" onclick="app.setLayoutMode('phone')" id="lmode-phone" class="py-1.5 rounded-lg transition-colors">Phone</button>
                 </div>
             </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2.5">
+                <div class="flex items-center justify-between text-xs font-bold">
+                    <span><i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Phone Visual Frame</span>
+                    <span id="phone-frame-label" class="text-[10px] font-mono uppercase text-slate-400">iPhone</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-xl text-[11px] font-bold">
+                    <button type="button" onclick="app.setPhoneFrame('iphone')" id="pframe-iphone" class="py-1.5 rounded-lg transition-colors">iPhone</button>
+                    <button type="button" onclick="app.setPhoneFrame('samsung')" id="pframe-samsung" class="py-1.5 rounded-lg transition-colors">Samsung</button>
+                    <button type="button" onclick="app.setPhoneFrame('normal')" id="pframe-normal" class="py-1.5 rounded-lg transition-colors">Normal</button>
+                </div>
+                <div id="phone-frame-bg-wrap" class="pt-2 border-t border-slate-200/80 dark:border-zinc-800 space-y-2">
+                    <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <span>Outer Background</span>
+                        <span id="phone-frame-bg-hex" class="font-mono">#050507</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div id="phone-frame-bg-swatches" class="flex flex-wrap items-center gap-2"></div>
+                        <label title="Custom Background Color" class="w-7 h-7 rounded-full border-2 border-dashed border-slate-400 dark:border-zinc-600 flex items-center justify-center cursor-pointer overflow-hidden relative">
+                            <i class="fas fa-eye-dropper text-[10px] text-slate-500 dark:text-zinc-400 pointer-events-none"></i>
+                            <input type="color" id="phone-frame-bg-picker" oninput="app.setPhoneFrameBg(this.value)" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer">
+                        </label>
+                    </div>
+                </div>
+            </div>
             <button onclick="app.toggleTheme()" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs font-bold">
                 <span><i class="fas fa-adjust mr-2 text-blue-500"></i>Toggle Dark / Light Mode</span>
                 <i class="fas fa-chevron-right text-slate-400"></i>
@@ -1144,6 +1299,17 @@
 
             scheduleCursor: new Date(),
             layoutMode: localStorage.getItem('strict_layout_mode') || 'auto', // 'auto' | 'desktop' | 'phone'
+            phoneFrame: localStorage.getItem('strict_phone_frame') || 'iphone', // 'iphone' | 'samsung' | 'normal'
+            phoneFrameBg: localStorage.getItem('strict_phone_frame_bg') || '#050507',
+            frameBgPresets: [
+                { name: 'Pitch Black', hex: '#000000' },
+                { name: 'Obsidian', hex: '#050507' },
+                { name: 'Dark Zinc', hex: '#18181b' },
+                { name: 'Midnight', hex: '#0b1120' },
+                { name: 'Deep Forest', hex: '#071713' },
+                { name: 'Dark Plum', hex: '#140b1c' },
+                { name: 'Studio Gray', hex: '#d4d4d8' }
+            ],
 
             // Habit Consistency Modal State (Stats)
             heatmapScope: 'month',
@@ -1278,6 +1444,7 @@
                 }
 
                 app.applyLayoutMode(app.layoutMode);
+                app.applyPhoneFrame(app.phoneFrame, app.phoneFrameBg);
                 app.updateHeaderMetrics();
                 app.switchTab('stats');
 
@@ -1456,6 +1623,8 @@
                 app.logSubTab = 'journal';
                 app.switchTab('log');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                const shell = document.querySelector('.app-shell');
+                if (shell) shell.scrollTo({ top: 0, behavior: 'smooth' });
             },
 
             calcStreak: (checkFn) => {
@@ -2914,6 +3083,8 @@
                 app.planSubTab = 'vision';
                 app.switchTab('plan');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                const shell = document.querySelector('.app-shell');
+                if (shell) shell.scrollTo({ top: 0, behavior: 'smooth' });
             },
 
             markVisionDirty: (dateStr, v) => {
@@ -4139,9 +4310,61 @@
                 app.applyLayoutMode(mode);
             },
 
+            applyPhoneFrame: (frame, bg) => {
+                const valid = ['iphone', 'samsung', 'normal'].includes(frame) ? frame : 'iphone';
+                const color = bg || '#050507';
+                app.phoneFrame = valid;
+                app.phoneFrameBg = color;
+
+                document.body.classList.toggle('phone-framed', valid !== 'normal');
+                document.body.classList.toggle('frame-iphone', valid === 'iphone');
+                document.body.classList.toggle('frame-samsung', valid === 'samsung');
+                document.documentElement.style.setProperty('--frame-bg', color);
+
+                const lbl = document.getElementById('phone-frame-label');
+                if (lbl) lbl.innerText = valid === 'iphone' ? 'iPhone' : valid === 'samsung' ? 'Samsung' : 'Normal';
+
+                ['iphone', 'samsung', 'normal'].forEach(f => {
+                    const btn = document.getElementById('pframe-' + f);
+                    if (btn) {
+                        btn.className = `py-1.5 rounded-lg transition-colors ${f === valid ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
+                    }
+                });
+
+                const bgWrap = document.getElementById('phone-frame-bg-wrap');
+                if (bgWrap) bgWrap.classList.toggle('hidden', valid === 'normal');
+
+                const hexEl = document.getElementById('phone-frame-bg-hex');
+                if (hexEl) hexEl.innerText = color.toUpperCase();
+
+                const picker = document.getElementById('phone-frame-bg-picker');
+                if (picker && /^#[0-9a-fA-F]{6}$/.test(color)) picker.value = color;
+
+                const swWrap = document.getElementById('phone-frame-bg-swatches');
+                if (swWrap) {
+                    swWrap.innerHTML = app.frameBgPresets.map(p => {
+                        const active = color.toLowerCase() === p.hex.toLowerCase();
+                        const isLight = p.hex.toLowerCase() === '#d4d4d8';
+                        return `<button type="button" onclick="app.setPhoneFrameBg('${p.hex}')" title="${p.name}" class="w-7 h-7 rounded-full flex items-center justify-center border border-slate-300 dark:border-zinc-700 transition-transform ${active ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-zinc-900 scale-110' : 'opacity-85 hover:opacity-100'}" style="background:${p.hex};">${active ? `<i class="fas fa-check text-[10px] ${isLight ? 'text-slate-900' : 'text-white'}"></i>` : ''}</button>`;
+                    }).join('');
+                }
+            },
+
+            setPhoneFrame: (frame) => {
+                localStorage.setItem('strict_phone_frame', frame);
+                app.applyPhoneFrame(frame, app.phoneFrameBg);
+            },
+
+            setPhoneFrameBg: (hex) => {
+                if (!hex) return;
+                localStorage.setItem('strict_phone_frame_bg', hex);
+                app.applyPhoneFrame(app.phoneFrame, hex);
+            },
+
             // --- SETTINGS & DATA ---
             openSettings: () => {
                 app.applyLayoutMode(app.layoutMode);
+                app.applyPhoneFrame(app.phoneFrame, app.phoneFrameBg);
 
                 const u = document.getElementById('sync-url-input');
                 const k = document.getElementById('sync-key-input');
