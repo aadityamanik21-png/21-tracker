@@ -28,12 +28,15 @@
                 }
             };
         }
-        if (localStorage.getItem('strict_theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        }
+        const _initDark = localStorage.getItem('strict_theme') === 'dark';
+        if (_initDark) document.documentElement.classList.add('dark');
+        const _tcMeta = document.querySelector('meta[name="theme-color"]');
+        if (_tcMeta) _tcMeta.setAttribute('content', _initDark ? '#09090b' : '#f8fafc');
     </script>
 
     <style>
+        html { background-color: #f8fafc; }
+        html.dark { background-color: #09090b; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
         .scroller { overflow-x: auto; scrollbar-width: none; }
@@ -841,7 +844,7 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <nav class="bottom-nav fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-t border-slate-200 dark:border-zinc-800 pb-[env(safe-area-inset-bottom)]">
+    <nav class="bottom-nav fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800 pb-[env(safe-area-inset-bottom)]">
         <div class="max-w-md mx-auto flex justify-around py-2">
             <button onclick="app.switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 px-4 py-1 text-blue-600 dark:text-blue-400">
                 <i class="fas fa-chart-pie text-base"></i><span class="text-[10px] font-bold uppercase">Stats</span>
@@ -4382,6 +4385,8 @@
             toggleTheme: () => {
                 const isDark = document.documentElement.classList.toggle('dark');
                 localStorage.setItem('strict_theme', isDark ? 'dark' : 'light');
+                const tc = document.querySelector('meta[name="theme-color"]');
+                if (tc) tc.setAttribute('content', isDark ? '#09090b' : '#f8fafc');
                 if (app.currentTab === 'stats' && app.statsSubTab === 'detailed') app.renderDetailedStats();
             },
 
