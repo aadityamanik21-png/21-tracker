@@ -209,7 +209,6 @@
             body:not(.force-desktop) .modal-box { padding: 12px !important; }
             body:not(.force-desktop) .bottom-nav .max-w-md > button { padding-top: 2px; padding-bottom: 2px; }
             body:not(.force-desktop) .bottom-nav i { font-size: 0.875rem !important; }
-            body:not(.force-desktop) button,
             body:not(.force-desktop) select,
             body:not(.force-desktop) input[type="date"],
             body:not(.force-desktop) input[type="time"] { min-height: 30px; }
@@ -230,7 +229,7 @@
         body.force-phone .h-56 { height: 11.5rem !important; }
         body.force-phone #circular-heatmap-wrap { max-width: 245px !important; }
         body.force-phone .modal-box { padding: 12px !important; }
-        body.force-phone button, body.force-phone select, body.force-phone input[type="date"], body.force-phone input[type="time"] { min-height: 30px; }
+        body.force-phone select, body.force-phone input[type="date"], body.force-phone input[type="time"] { min-height: 30px; }
 
         /* Phone-in-Phone Visual Frame (Phone Only — Transparent on Desktop) */
         #phone-bezel, #phone-screen { display: contents; }
@@ -265,6 +264,8 @@
                 min-height: 0;
                 width: 100%;
                 overflow: hidden;
+                isolation: isolate;
+                transform: translateZ(0);
                 position: relative;
                 background-color: #f8fafc;
             }
@@ -276,6 +277,12 @@
                 top: auto;
                 flex-shrink: 0;
                 z-index: 20;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background-color: #ffffff !important;
+            }
+            html.dark body:not(.force-desktop).phone-framed header {
+                background-color: #09090b !important;
             }
             body:not(.force-desktop).phone-framed .app-shell {
                 flex: 1;
@@ -297,30 +304,31 @@
                 padding-bottom: 6px !important;
             }
 
-            /* iPhone Style (Rounded Metallic Titanium Bezel) */
+            /* iPhone Style (Concentric Titanium Rim + Uniform Black Bezel) */
             body:not(.force-desktop).frame-iphone #phone-bezel {
-                padding: 8px;
+                padding: 2.5px;
                 border-radius: 44px;
-                background: linear-gradient(145deg, #52525b 0%, #27272a 30%, #71717a 55%, #18181b 100%);
-                box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.78), inset 0 0 0 1.5px rgba(255, 255, 255, 0.22), inset 0 0 0 4px #09090b;
+                background: linear-gradient(145deg, #71717a 0%, #3f3f46 40%, #52525b 75%, #27272a 100%);
+                box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85);
             }
             body:not(.force-desktop).frame-iphone #phone-screen {
-                border-radius: 36px;
-                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+                border: 5px solid #050507;
+                border-radius: 41.5px;
             }
-            body:not(.force-desktop).frame-iphone header > div { padding-left: 18px; padding-right: 18px; }
+            body:not(.force-desktop).frame-iphone header { padding-top: 4px; }
+            body:not(.force-desktop).frame-iphone header > div { padding-left: 22px; padding-right: 22px; }
             body:not(.force-desktop).frame-iphone .bottom-nav { padding-bottom: 10px !important; }
 
-            /* Samsung Style (Sharp Boxy Ultra Bezel) */
+            /* Samsung Style (Crisp Boxy Ultra Titanium Rim + Uniform Black Bezel) */
             body:not(.force-desktop).frame-samsung #phone-bezel {
-                padding: 6px;
+                padding: 2px;
                 border-radius: 12px;
-                background: linear-gradient(160deg, #3f3f46 0%, #18181b 40%, #27272a 75%, #09090b 100%);
-                box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 0 0 3px #050507;
+                background: linear-gradient(155deg, #52525b 0%, #27272a 50%, #3f3f46 100%);
+                box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85);
             }
             body:not(.force-desktop).frame-samsung #phone-screen {
-                border-radius: 6px;
-                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+                border: 4px solid #050507;
+                border-radius: 10px;
             }
         }
 
@@ -340,26 +348,28 @@
             display: flex; flex-direction: column; width: 100%; max-width: 420px; height: 100%; max-height: 100%; overflow: hidden; position: relative;
         }
         body.force-phone.phone-framed #phone-screen {
-            display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; overflow: hidden; position: relative; background-color: #f8fafc;
+            display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; overflow: hidden; isolation: isolate; transform: translateZ(0); position: relative; background-color: #f8fafc;
         }
         html.dark body.force-phone.phone-framed #phone-screen { background-color: #09090b; }
-        body.force-phone.phone-framed header { position: relative; top: auto; flex-shrink: 0; z-index: 20; }
+        body.force-phone.phone-framed header { position: relative; top: auto; flex-shrink: 0; z-index: 20; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background-color: #ffffff !important; }
+        html.dark body.force-phone.phone-framed header { background-color: #09090b !important; }
         body.force-phone.phone-framed .app-shell { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         body.force-phone.phone-framed .app-shell::-webkit-scrollbar { display: none; }
         body.force-phone.phone-framed .content-wrap { padding-bottom: 18px; }
         body.force-phone.phone-framed .bottom-nav { position: relative; bottom: auto; left: auto; right: auto; flex-shrink: 0; z-index: 20; padding-bottom: 6px !important; }
         body.force-phone.frame-iphone #phone-bezel {
-            padding: 8px; border-radius: 44px;
-            background: linear-gradient(145deg, #52525b 0%, #27272a 30%, #71717a 55%, #18181b 100%);
-            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.78), inset 0 0 0 1.5px rgba(255, 255, 255, 0.22), inset 0 0 0 4px #09090b;
+            padding: 2.5px; border-radius: 44px;
+            background: linear-gradient(145deg, #71717a 0%, #3f3f46 40%, #52525b 75%, #27272a 100%);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85);
         }
-        body.force-phone.frame-iphone #phone-screen { border-radius: 36px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06); }
-        body.force-phone.frame-iphone header > div { padding-left: 18px; padding-right: 18px; }
+        body.force-phone.frame-iphone #phone-screen { border: 5px solid #050507; border-radius: 41.5px; }
+        body.force-phone.frame-iphone header { padding-top: 4px; }
+        body.force-phone.frame-iphone header > div { padding-left: 22px; padding-right: 22px; }
         body.force-phone.frame-iphone .bottom-nav { padding-bottom: 10px !important; }
         body.force-phone.frame-samsung #phone-bezel {
-            padding: 6px; border-radius: 12px;
-            background: linear-gradient(160deg, #3f3f46 0%, #18181b 40%, #27272a 75%, #09090b 100%);
-            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 0 0 3px #050507;
+            padding: 2px; border-radius: 12px;
+            background: linear-gradient(155deg, #52525b 0%, #27272a 50%, #3f3f46 100%);
+            box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85);
         }
         body.force-phone.frame-samsung #phone-screen { border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); }
     </style>
@@ -416,13 +426,13 @@
 
         <!-- VIEW 1: STATS / AUDIT -->
         <section id="view-stats" class="space-y-4">
-            <!-- Stats Sub-Tab Switcher -->
-            <div class="flex bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800">
-                <button onclick="app.setStatsSubTab('vision')" id="stats-subtab-vision" class="flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-crosshairs text-[11px]"></i> Vision vs Reality
+                        <!-- Stats Sub-Tab Switcher -->
+            <div class="grid grid-cols-2 gap-1 bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800">
+                <button onclick="app.setStatsSubTab('vision')" id="stats-subtab-vision" class="py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap">
+                    <i class="fas fa-crosshairs text-[10px] shrink-0"></i><span>Vision vs Reality</span>
                 </button>
-                <button onclick="app.setStatsSubTab('detailed')" id="stats-subtab-detailed" class="flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-chart-bar text-[11px]"></i> Detailed Stats
+                <button onclick="app.setStatsSubTab('detailed')" id="stats-subtab-detailed" class="py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap">
+                    <i class="fas fa-chart-bar text-[10px] shrink-0"></i><span>Detailed Stats</span>
                 </button>
             </div>
 
@@ -599,9 +609,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <input type="text" id="vp-int-plan" onkeydown="if(event.key==='Enter'){event.preventDefault();app.addVisionBlock();}" placeholder="what will you do during this time" class="flex-1 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs outline-none">
-                                <select id="vp-int-task-pick" onchange="if(this.value){ document.getElementById('vp-int-plan').value = this.value; this.value = ''; }" class="w-24 sm:w-28 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-[10px] font-bold text-slate-500 outline-none shrink-0"></select>
+                            <div>
+                                <input type="text" id="vp-int-plan" onkeydown="if(event.key==='Enter'){event.preventDefault();app.addVisionBlock();}" placeholder="what will you do during this time" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs outline-none">
                             </div>
                             <div class="flex gap-2">
                                 <button type="button" id="vp-int-submit-btn" onclick="app.addVisionBlock()" class="flex-1 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold uppercase tracking-wider active:scale-95 transition-transform">
@@ -641,11 +650,11 @@
                             <button onclick="app.setLogHmScope('year')" id="lhm-scope-year" class="flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg transition-colors">Year</button>
                         </div>
 
-                        <div class="flex items-center justify-between sm:justify-end gap-2">
-                            <button onclick="app.shiftLogHm(-1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-left"></i></button>
-                            <span id="lhm-period-label" class="text-xs font-mono font-bold min-w-[130px] text-center">--</span>
-                            <button onclick="app.shiftLogHm(1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-right"></i></button>
-                            <button onclick="app.resetLogHmDate()" class="px-2.5 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 text-[10px] font-bold uppercase">Today</button>
+                        <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 min-w-0">
+                            <button onclick="app.shiftLogHm(-1)" class="w-8 h-8 shrink-0 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-left"></i></button>
+                            <span id="lhm-period-label" class="text-xs font-mono font-bold flex-1 sm:flex-none sm:min-w-[130px] text-center truncate px-1">--</span>
+                            <button onclick="app.shiftLogHm(1)" class="w-8 h-8 shrink-0 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs"><i class="fas fa-chevron-right"></i></button>
+                            <button onclick="app.resetLogHmDate()" class="px-2.5 h-8 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 text-[10px] font-bold uppercase">Today</button>
                         </div>
                     </div>
 
@@ -818,25 +827,25 @@
         <!-- VIEW 4: SCHEDULE (FULL AGENDA) -->
         <section id="view-schedule" class="hidden space-y-2.5">
             <!-- Minimal Control & Action Strip -->
-            <div class="flex flex-col gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2">
-                <div class="flex items-center justify-between gap-2">
+            <div class="flex flex-col gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2 overflow-hidden">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
                     <div class="flex bg-slate-100 dark:bg-zinc-950 p-0.5 rounded-xl text-[11px] font-bold shrink-0">
-                        <button onclick="app.setScheduleMode('month')" id="sched-mode-month" class="px-2.5 py-1 rounded-lg">Month</button>
-                        <button onclick="app.setScheduleMode('all')" id="sched-mode-all" class="px-2.5 py-1 rounded-lg">Timeline</button>
+                        <button onclick="app.setScheduleMode('month')" id="sched-mode-month" class="px-2 py-1 rounded-lg whitespace-nowrap">Month</button>
+                        <button onclick="app.setScheduleMode('all')" id="sched-mode-all" class="px-2 py-1 rounded-lg whitespace-nowrap">Timeline</button>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="app.openTaskModal(null, 'event')" class="px-2.5 py-1 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-[11px] font-bold active:scale-95 transition-all">+ Event</button>
-                        <button onclick="app.openTaskModal(null, 'task')" class="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold active:scale-95 transition-all">+ Target</button>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="app.openTaskModal(null, 'event')" class="px-2 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-[11px] font-bold whitespace-nowrap active:scale-95 transition-all">+ Event</button>
+                        <button onclick="app.openTaskModal(null, 'task')" class="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold whitespace-nowrap active:scale-95 transition-all">+ Target</button>
                     </div>
                 </div>
-                <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-zinc-800/80">
-                    <div id="sched-month-nav" class="flex items-center gap-1.5">
-                        <button onclick="app.shiftScheduleMonth(-1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-left"></i></button>
-                        <span id="sched-month-label" class="text-[11px] font-mono font-bold min-w-[100px] text-center">--</span>
-                        <button onclick="app.shiftScheduleMonth(1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-right"></i></button>
-                        <button onclick="app.resetScheduleMonth()" class="px-2 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
+                <div class="flex items-center justify-between gap-1.5 pt-1.5 border-t border-slate-100 dark:border-zinc-800/80 min-w-0">
+                    <div id="sched-month-nav" class="flex items-center gap-1 min-w-0 flex-1">
+                        <button onclick="app.shiftScheduleMonth(-1)" class="w-7 h-7 shrink-0 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-left"></i></button>
+                        <span id="sched-month-label" class="text-[11px] font-mono font-bold flex-1 sm:flex-none sm:min-w-[110px] text-center truncate px-1">--</span>
+                        <button onclick="app.shiftScheduleMonth(1)" class="w-7 h-7 shrink-0 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fas fa-chevron-right"></i></button>
+                        <button onclick="app.resetScheduleMonth()" class="px-2 h-7 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Today</button>
                     </div>
-                    <button onclick="app.openRecycleBin()" title="Recycle Bin" class="ml-auto px-2.5 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 border border-slate-200 dark:border-zinc-700 text-[11px] font-bold active:scale-95 transition-all flex items-center gap-1 shrink-0">
+                    <button onclick="app.openRecycleBin()" title="Recycle Bin" class="ml-auto px-2 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 border border-slate-200 dark:border-zinc-700 text-[11px] font-bold active:scale-95 transition-all flex items-center gap-1 shrink-0">
                         <i class="fas fa-trash-restore text-[10px]"></i><span id="sched-trash-count" class="font-mono text-[10px]">0</span>
                     </button>
                 </div>
@@ -1606,7 +1615,7 @@
                     const btn = document.getElementById('subtab-' + s);
                     const panel = document.getElementById('log-panel-' + s);
                     const active = s === sub;
-                    btn.className = `flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${active ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
+                    btn.className = `flex-1 py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-wider transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${active ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
                     panel.classList.toggle('hidden', !active);
                 });
 
@@ -2942,7 +2951,7 @@
 
                 ['month', 'all'].forEach(m => {
                     const b = document.getElementById('sched-mode-' + m);
-                    if (b) b.className = `flex-1 sm:flex-none px-3 py-1 rounded-lg transition-colors ${mode === m ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`;
+                    if (b) b.className = `px-2 sm:px-3 py-1 rounded-lg transition-colors whitespace-nowrap ${mode === m ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`;
                 });
                 const navEl = document.getElementById('sched-month-nav');
                 if (navEl) navEl.classList.toggle('hidden', mode !== 'month');
@@ -3050,7 +3059,7 @@
                     const btn = document.getElementById('stats-subtab-' + s);
                     const panel = document.getElementById('stats-panel-' + s);
                     const active = s === sub;
-                    btn.className = `flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${active ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
+                    btn.className = `py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap ${active ? 'bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-400'}`;
                     panel.classList.toggle('hidden', !active);
                 });
 
@@ -3283,9 +3292,6 @@
                                 <p class="text-[10px] sm:text-[11px] text-slate-400 font-mono mt-0.5 truncate">${totalPlanned > 0 ? `Gap: <span class="text-rose-400 font-bold">${gap}%</span> (${totalExecutedDisplay}/${totalPlanned} hit)` : 'Plan your day to measure the gap'}</p>
                             </div>
                         </div>
-                        <button onclick="app.openVisionPlannerFor('${dateStr}')" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors">
-                            <i class="fas fa-pen mr-1"></i>${v ? 'Edit' : 'Plan'}
-                        </button>
                     </div>
                     <div class="grid grid-cols-3 gap-1.5 sm:gap-2 mt-2.5 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-white/10 text-center">
                         <div>
@@ -3616,13 +3622,6 @@
                             <button type="button" onclick="app.removeTaskFromVision('${t.id}')" class="text-blue-400 hover:text-rose-500"><i class="fas fa-times text-[10px]"></i></button>
                         </span>
                     `).join('');
-
-                const pick = document.getElementById('vp-int-task-pick');
-                if (pick) {
-                    pick.innerHTML = pulled.length === 0
-                        ? `<option value="">+ Task</option>`
-                        : `<option value="">+ Task</option>` + pulled.map(t => `<option value="${escapeHTML(t.title)}">${escapeHTML(t.title)}</option>`).join('');
-                }
 
                 app.renderVisionBlocksList();
             },
