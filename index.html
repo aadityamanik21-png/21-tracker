@@ -237,9 +237,11 @@
 
         @media (max-width: 1023px) {
             body:not(.force-desktop).phone-framed {
-                height: 100dvh;
-                overflow: hidden;
-                padding: calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)) 10px !important;
+                min-height: 0 !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+                padding: calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
                 background: var(--frame-bg, #050507) !important;
                 display: flex;
                 align-items: center;
@@ -251,7 +253,8 @@
                 width: 100%;
                 max-width: 420px;
                 height: 100%;
-                max-height: 920px;
+                max-height: 100%;
+                overflow: hidden;
                 position: relative;
                 transition: border-radius 0.25s ease, box-shadow 0.25s ease;
             }
@@ -323,16 +326,18 @@
 
         /* Also support Manual Force Phone mode */
         body.force-phone.phone-framed {
-            height: 100dvh;
-            overflow: hidden;
-            padding: calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)) 10px !important;
+            min-height: 0 !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            padding: calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
             background: var(--frame-bg, #050507) !important;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         body.force-phone.phone-framed #phone-bezel {
-            display: flex; flex-direction: column; width: 100%; max-width: 420px; height: 100%; max-height: 920px; position: relative;
+            display: flex; flex-direction: column; width: 100%; max-width: 420px; height: 100%; max-height: 100%; overflow: hidden; position: relative;
         }
         body.force-phone.phone-framed #phone-screen {
             display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; overflow: hidden; position: relative; background-color: #f8fafc;
@@ -1171,7 +1176,7 @@
             <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2.5">
                 <div class="flex items-center justify-between text-xs font-bold">
                     <span><i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Phone Visual Frame</span>
-                    <span id="phone-frame-label" class="text-[10px] font-mono uppercase text-slate-400">iPhone</span>
+                    <span id="phone-frame-label" class="text-[10px] font-mono uppercase text-slate-400">Normal</span>
                 </div>
                 <div class="grid grid-cols-3 gap-1.5 bg-slate-200/70 dark:bg-zinc-900 p-1 rounded-xl text-[11px] font-bold">
                     <button type="button" onclick="app.setPhoneFrame('iphone')" id="pframe-iphone" class="py-1.5 rounded-lg transition-colors">iPhone</button>
@@ -1302,7 +1307,7 @@
 
             scheduleCursor: new Date(),
             layoutMode: localStorage.getItem('strict_layout_mode') || 'auto', // 'auto' | 'desktop' | 'phone'
-            phoneFrame: localStorage.getItem('strict_phone_frame') || 'iphone', // 'iphone' | 'samsung' | 'normal'
+            phoneFrame: localStorage.getItem('strict_phone_frame') || 'normal', // 'iphone' | 'samsung' | 'normal'
             phoneFrameBg: localStorage.getItem('strict_phone_frame_bg') || '#050507',
             frameBgPresets: [
                 { name: 'Pitch Black', hex: '#000000' },
@@ -4314,7 +4319,7 @@
             },
 
             applyPhoneFrame: (frame, bg) => {
-                const valid = ['iphone', 'samsung', 'normal'].includes(frame) ? frame : 'iphone';
+                const valid = ['iphone', 'samsung', 'normal'].includes(frame) ? frame : 'normal';
                 const color = bg || '#050507';
                 app.phoneFrame = valid;
                 app.phoneFrameBg = color;
