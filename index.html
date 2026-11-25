@@ -35,9 +35,34 @@
     </script>
 
     <style>
-        html { background-color: #f8fafc; }
-        html.dark { background-color: #09090b; }
+        html { background-color: #f8fafc; color-scheme: light; }
+        html.dark { background-color: #09090b; color-scheme: dark; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        input[type="date"] {
+            max-width: 100%;
+            flex-shrink: 0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+        }
+        input[type="date"]:not(.w-full) {
+            width: 118px;
+        }
+        #vr-date-picker {
+            width: 106px;
+        }
+        input[type="date"]::-webkit-datetime-edit {
+            padding: 0 4px 0 0;
+            overflow: visible;
+        }
+        input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+            padding: 0;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            margin-left: 2px;
+            padding: 0;
+            cursor: pointer;
+        }
         body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
         .scroller { overflow-x: auto; scrollbar-width: none; }
         .scroller::-webkit-scrollbar { display: none; }
@@ -79,10 +104,9 @@
             body:not(.force-phone) .bottom-nav { display: none; }
             body:not(.force-phone) .content-wrap { max-width: none; flex: 1; padding: 20px 28px; min-width: 0; }
 
-            /* Keep Sub-Tab Switchers & Date Bar Crisp Instead of Stretched */
+            /* Keep Sub-Tab Switchers Crisp Instead of Stretched */
             body:not(.force-phone) #view-stats > div:first-child,
             body:not(.force-phone) #view-log > div:first-child { max-width: 420px; }
-            body:not(.force-phone) #stats-panel-vision > div:first-child { max-width: 340px; }
 
             /* Desktop Bento: Vision vs Reality */
             body:not(.force-phone) #vr-content {
@@ -138,9 +162,8 @@
             body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(2) { grid-column: 7 / span 6; grid-row: 2 / span 2; }
             body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(3),
             body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(4),
-            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(5),
-            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(6) { grid-column: 1 / span 6; }
-            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(7) { grid-column: 7 / span 6; grid-row: 4 / span 2; border-top: 0; padding-top: 0; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(5) { grid-column: 1 / span 6; }
+            body:not(.force-phone) #log-panel-journal > :nth-child(2) > :nth-child(6) { grid-column: 7 / span 6; grid-row: 4 / span 2; border-top: 0; padding-top: 0; }
 
             /* Desktop Bento: Schedule */
             body:not(.force-phone) #schedule-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
@@ -371,7 +394,7 @@
             background: linear-gradient(155deg, #52525b 0%, #27272a 50%, #3f3f46 100%);
             box-shadow: 0 22px 50px -12px rgba(0, 0, 0, 0.85);
         }
-        body.force-phone.frame-samsung #phone-screen { border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); }
+        body.force-phone.frame-samsung #phone-screen { border: 4px solid #050507; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen transition-colors">
@@ -438,17 +461,6 @@
 
             <!-- SUB-TAB 1: VISION vs REALITY -->
             <div id="stats-panel-vision" class="space-y-4">
-                <!-- Date Bar -->
-                <div id="vr-date-bar" class="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2.5 transition-colors">
-                    <button onclick="app.shiftVRDate(-1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs shrink-0"><i class="fas fa-chevron-left"></i></button>
-                    <div class="flex flex-wrap items-center justify-center gap-1.5 min-w-0">
-                        <input type="date" id="vr-date-picker" onchange="app.setVRDate(this.value)" class="bg-transparent text-xs font-mono font-black outline-none text-center">
-                        <span id="vr-date-badge" class="px-2 py-0.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider">Today</span>
-                        <button id="vr-today-btn" onclick="app.setVRDate(app.getTodayISO())" class="hidden px-2 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold uppercase active:scale-95 transition-transform">Jump to Today</button>
-                    </div>
-                    <button onclick="app.shiftVRDate(1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs shrink-0"><i class="fas fa-chevron-right"></i></button>
-                </div>
-
                 <!-- Dynamic Vision vs Reality Content -->
                 <div id="vr-content" class="space-y-4"></div>
             </div>
@@ -514,18 +526,20 @@
         <!-- VIEW 2: PLAN (VISION PLANNER) -->
         <section id="view-plan" class="hidden space-y-4">
             <div id="plan-panel-vision" class="space-y-4">
-                <div id="vision-planner-card" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 space-y-5">
-                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
-                        <div>
+                <div id="vision-planner-card" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 space-y-5 overflow-hidden">
+                    <div class="flex flex-col gap-2.5 border-b border-slate-100 dark:border-zinc-800 pb-3">
+                        <div class="flex items-center justify-between gap-2">
                             <h3 class="font-black text-sm uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
                                 <i class="fas fa-compass"></i> Plan Your Day
                             </h3>
+                            <button id="btn-save-vision" onclick="app.saveVisionPlan()" class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold shrink-0 active:scale-95 transition-transform">Save Plan</button>
                         </div>
-                        <div class="flex flex-wrap items-center gap-1.5">
-                            <span id="vision-date-badge" class="px-2 py-1 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider">Today</span>
-                            <input type="date" id="vision-date-input" onchange="app.loadVisionPlanner(this.value)" class="bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none transition-colors">
-                            <button id="vision-today-btn" type="button" onclick="app.loadVisionPlanner(app.getTodayISO())" class="hidden px-2 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-800 text-[10px] font-bold uppercase active:scale-95 transition-transform">Today</button>
-                            <button id="btn-save-vision" onclick="app.saveVisionPlan()" class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform">Save Plan</button>
+                        <div class="flex items-center justify-between gap-2 min-w-0">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <input type="date" id="vision-date-input" onchange="app.loadVisionPlanner(this.value)" class="bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none transition-colors min-w-0">
+                                <span id="vision-date-badge" class="px-2 py-1 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider shrink-0">Today</span>
+                            </div>
+                            <button id="vision-today-btn" type="button" onclick="app.loadVisionPlanner(app.getTodayISO())" class="hidden px-2.5 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-800 text-[10px] font-bold uppercase shrink-0 active:scale-95 transition-transform">Today</button>
                         </div>
                     </div>
 
@@ -545,11 +559,11 @@
                     </div>
 
                     <!-- Step 2: Pull from Targets or Create New Task -->
-                    <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                    <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-zinc-800 min-w-0">
                         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">2. Targets to Execute</p>
-                        <div class="flex gap-2">
-                            <select id="vp-pull-select" class="flex-1 p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-semibold outline-none"></select>
-                            <button type="button" onclick="app.pullTaskToVision()" class="px-3 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold shrink-0">Pull</button>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <select id="vp-pull-select" class="flex-1 min-w-0 w-0 p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-semibold outline-none truncate"></select>
+                            <button type="button" onclick="app.pullTaskToVision()" class="px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold shrink-0">Pull</button>
                         </div>
                         <button type="button" onclick="app.openVisionTaskModal()" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-1.5">
                             <i class="fas fa-plus text-[10px]"></i> Create new Task
@@ -589,18 +603,18 @@
 
                         <!-- Custom Activity Interval Builder -->
                         <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2.5">
-                            <div class="grid grid-cols-3 gap-2">
-                                <div>
+                            <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+                                <div class="min-w-0">
                                     <label class="block text-[9px] font-bold uppercase text-slate-400 mb-1">Start</label>
-                                    <input type="time" id="vp-int-start" value="05:00" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                                    <input type="time" id="vp-int-start" value="05:00" class="w-full min-w-0 p-1.5 sm:p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
                                 </div>
-                                <div>
+                                <div class="min-w-0">
                                     <label class="block text-[9px] font-bold uppercase text-slate-400 mb-1">End</label>
-                                    <input type="time" id="vp-int-end" value="07:00" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
+                                    <input type="time" id="vp-int-end" value="07:00" class="w-full min-w-0 p-1.5 sm:p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold outline-none">
                                 </div>
-                                <div>
+                                <div class="min-w-0">
                                     <label class="block text-[9px] font-bold uppercase text-slate-400 mb-1">Activity</label>
-                                    <select id="vp-int-type" class="w-full p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
+                                    <select id="vp-int-type" class="w-full min-w-0 p-1.5 sm:p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
                                         <option value="study">Study</option>
                                         <option value="practice">Practice</option>
                                         <option value="revision">Revision</option>
@@ -735,39 +749,72 @@
                         </div>
                     </div>
 
-                    <!-- Core Biometrics & Output -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Study (Hrs)</label>
-                            <input type="number" id="log-study" min="0" step="0.5" placeholder="0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                    <!-- Daily Routine & Core Output -->
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Daily Routine</p>
+
+                        <!-- Top Row: Wake Up & Sleep -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Wake Up</label>
+                                <input type="time" id="log-wake" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sleep</label>
+                                <input type="time" id="log-sleep" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Practice (Hrs)</label>
-                            <input type="number" id="log-practice" min="0" step="0.5" placeholder="0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Revision (Hrs)</label>
-                            <input type="number" id="log-revision" min="0" step="0.5" placeholder="0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Exercise</label>
-                            <select id="log-exercise" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Diet Quality</label>
-                            <select id="log-diet" onchange="app.onDietQualityChange()" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
-                                <option value="">Unlogged</option>
-                                <option value="Clean">Clean</option>
-                                <option value="Average">Average</option>
-                                <option value="Junk">Junk</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Weight (kg)</label>
-                            <input type="number" id="log-weight" min="0" step="0.1" placeholder="0.0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+
+                        <!-- Meals, Output & Biometrics -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Breakfast</label>
+                                <input type="time" id="log-bf" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Lunch</label>
+                                <input type="time" id="log-lunch" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Snacks</label>
+                                <input type="time" id="log-snacks" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Dinner</label>
+                                <input type="time" id="log-dinner" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Study (Hrs)</label>
+                                <input type="number" id="log-study" min="0" step="0.5" placeholder="0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Practice (Hrs)</label>
+                                <input type="number" id="log-practice" min="0" step="0.5" placeholder="0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Revision (Hrs)</label>
+                                <input type="number" id="log-revision" min="0" step="0.5" placeholder="0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Exercise</label>
+                                <select id="log-exercise" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Diet Quality</label>
+                                <select id="log-diet" onchange="app.onDietQualityChange()" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-bold outline-none">
+                                    <option value="">Unlogged</option>
+                                    <option value="Clean">Clean</option>
+                                    <option value="Average">Average</option>
+                                    <option value="Junk">Junk</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Weight (kg)</label>
+                                <input type="number" id="log-weight" min="0" step="0.1" placeholder="0.0" class="w-full p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono outline-none">
+                            </div>
                         </div>
                     </div>
 
@@ -791,18 +838,6 @@
                             </div>
                         </div>
                         <div id="diet-meals-list" class="flex flex-wrap gap-1.5"></div>
-                    </div>
-
-                    <!-- Routine Timestamps -->
-                    <div>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Daily Routine</p>
-                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                            <div><label class="block text-[9px] text-slate-400 uppercase mb-1">Wake Up</label><input type="time" id="log-wake" class="w-full p-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono"></div>
-                            <div><label class="block text-[9px] text-slate-400 uppercase mb-1">Breakfast</label><input type="time" id="log-bf" class="w-full p-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono"></div>
-                            <div><label class="block text-[9px] text-slate-400 uppercase mb-1">Lunch</label><input type="time" id="log-lunch" class="w-full p-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono"></div>
-                            <div><label class="block text-[9px] text-slate-400 uppercase mb-1">Dinner</label><input type="time" id="log-dinner" class="w-full p-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono"></div>
-                            <div><label class="block text-[9px] text-slate-400 uppercase mb-1">Sleep</label><input type="time" id="log-sleep" class="w-full p-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono"></div>
-                        </div>
                     </div>
 
                     <!-- Custom Habit Markers -->
@@ -1069,6 +1104,32 @@
             <div class="border-t border-slate-100 dark:border-zinc-800 pt-3">
                 <p class="text-[10px] font-bold uppercase text-slate-400 mb-2">Active Markers</p>
                 <div id="marker-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VISION vs REALITY HISTORY -->
+    <div id="vr-history-modal" class="modal-overlay" onclick="if(event.target===this) app.closeModal('vr-history-modal')">
+        <div class="modal-box bg-white dark:bg-zinc-900 p-5 border-t md:border border-slate-200 dark:border-zinc-800 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-3">
+                <div>
+                    <h3 class="font-bold text-base">Vision vs Reality History</h3>
+                    <p class="text-[10px] uppercase tracking-widest text-slate-400">Pick any date or jump to a saved plan</p>
+                </div>
+                <button onclick="app.closeModal('vr-history-modal')" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 shrink-0"><i class="fas fa-times text-xs"></i></button>
+            </div>
+            <div id="vr-date-bar" class="flex items-center justify-between gap-2 rounded-2xl p-2.5 border transition-colors">
+                <button onclick="app.shiftVRDate(-1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs shrink-0"><i class="fas fa-chevron-left"></i></button>
+                <div class="flex items-center justify-center gap-1.5 min-w-0">
+                    <input type="date" id="vr-date-picker" onchange="app.setVRDate(this.value)" class="bg-transparent text-xs font-mono font-black outline-none">
+                    <span id="vr-date-badge" class="px-2 py-0.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider whitespace-nowrap shrink-0">Today</span>
+                    <button id="vr-today-btn" onclick="app.selectVRHistoryDate(app.getTodayISO())" class="hidden px-2 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold uppercase whitespace-nowrap shrink-0 active:scale-95 transition-transform">Today</button>
+                </div>
+                <button onclick="app.shiftVRDate(1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 flex items-center justify-center text-xs shrink-0"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Recent Planned Dates</p>
+                <div id="vr-history-list" class="space-y-1.5 max-h-60 overflow-y-auto"></div>
             </div>
         </div>
     </div>
@@ -1344,31 +1405,29 @@
             },
 
             updateDateIndicator: (dateStr, { inputId, barId, badgeId, todayBtnId, showDateInBadge = false }) => {
-                const today = app.getTodayISO();
-                const isToday = dateStr === today;
-                const isYesterday = dateStr === app.addDaysISO(today, -1);
-                const isTomorrow = dateStr === app.addDaysISO(today, 1);
-
-                let statusText = '● Today';
-                if (!isToday) {
-                    const rel = isYesterday ? 'Yesterday' : isTomorrow ? 'Tomorrow' : (dateStr < today ? 'Past Date' : 'Future Date');
-                    statusText = showDateInBadge ? `⚠ ${rel} (${dateStr})` : `⚠ ${rel}`;
-                }
+                const isToday = dateStr === app.getTodayISO();
 
                 const barEl = barId ? document.getElementById(barId) : null;
                 if (barEl) {
-                    barEl.className = `flex items-center justify-between gap-2 rounded-2xl p-2.5 border transition-colors ${isToday ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800' : 'bg-amber-50/70 dark:bg-amber-950/25 border-amber-400 dark:border-amber-700'}`;
+                    barEl.className = `flex items-center justify-between gap-2 rounded-2xl p-2.5 border transition-colors ${isToday ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800' : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800'}`;
                 }
 
                 const inputEl = inputId ? document.getElementById(inputId) : null;
                 if (inputEl && !barId) {
-                    inputEl.className = `rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none border transition-colors ${isToday ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-400 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300' : 'bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300'}`;
+                    inputEl.className = `rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold outline-none border transition-colors ${isToday ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-400 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300' : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-zinc-100'}`;
                 }
 
                 const badgeEl = badgeId ? document.getElementById(badgeId) : null;
                 if (badgeEl) {
-                    badgeEl.innerText = statusText;
-                    badgeEl.className = `px-2 py-0.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider ${isToday ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-300/70 dark:border-emerald-800' : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-400/80 dark:border-amber-700'}`;
+                    if (isToday) {
+                        badgeEl.innerText = '● Today';
+                        badgeEl.className = 'px-2 py-0.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider whitespace-nowrap shrink-0 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-300/70 dark:border-emerald-800';
+                    } else if (showDateInBadge) {
+                        badgeEl.innerText = dateStr;
+                        badgeEl.className = 'text-xs font-mono font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400';
+                    } else {
+                        badgeEl.className = 'hidden';
+                    }
                 }
 
                 const btnEl = todayBtnId ? document.getElementById(todayBtnId) : null;
@@ -2009,9 +2068,9 @@
 
                 // 3. Routine Timestamps
                 const times = [
-                    { lbl: 'Wake', val: entry.wake }, { lbl: 'Breakfast', val: entry.bf },
-                    { lbl: 'Lunch', val: entry.lunch }, { lbl: 'Dinner', val: entry.dinner },
-                    { lbl: 'Sleep', val: entry.sleep }
+                    { lbl: 'Wake', val: entry.wake }, { lbl: 'Sleep', val: entry.sleep },
+                    { lbl: 'Breakfast', val: entry.bf }, { lbl: 'Lunch', val: entry.lunch },
+                    { lbl: 'Snacks', val: entry.snacks }, { lbl: 'Dinner', val: entry.dinner }
                 ].filter(t => t.val);
                 const routineHtml = times.length ? `
                     <div>
@@ -2579,6 +2638,13 @@
 
             loadLogDate: (dateStr) => {
                 const targetDate = dateStr || app.getTodayISO();
+                if (app.journalDirty && targetDate !== app.currentLogDate) {
+                    if (!confirm('You have unsaved changes in Journal. Switch date without saving?')) {
+                        const p = document.getElementById('log-date');
+                        if (p) p.value = app.currentLogDate;
+                        return;
+                    }
+                }
                 app.journalDirty = false;
                 app.currentLogDate = targetDate;
                 const picker = document.getElementById('log-date');
@@ -2601,6 +2667,7 @@
                 document.getElementById('log-wake').value = entry.wake || '';
                 document.getElementById('log-bf').value = entry.bf || '';
                 document.getElementById('log-lunch').value = entry.lunch || '';
+                document.getElementById('log-snacks').value = entry.snacks || '';
                 document.getElementById('log-dinner').value = entry.dinner || '';
                 document.getElementById('log-sleep').value = entry.sleep || '';
                 document.getElementById('log-notes').value = entry.notes || '';
@@ -2725,6 +2792,7 @@
                     wake: document.getElementById('log-wake').value,
                     bf: document.getElementById('log-bf').value,
                     lunch: document.getElementById('log-lunch').value,
+                    snacks: document.getElementById('log-snacks').value,
                     dinner: document.getElementById('log-dinner').value,
                     sleep: document.getElementById('log-sleep').value,
                     notes: document.getElementById('log-notes').value.trim(),
@@ -3072,11 +3140,57 @@
                 if (!dateStr) return;
                 app.vrDate = dateStr;
                 app.renderVisionVsReality();
+                const hm = document.getElementById('vr-history-modal');
+                if (hm && hm.classList.contains('open')) app.renderVRHistoryList();
             },
 
             shiftVRDate: (delta) => {
                 app.vrDate = app.addDaysISO(app.vrDate || app.getTodayISO(), delta);
                 app.renderVisionVsReality();
+                const hm = document.getElementById('vr-history-modal');
+                if (hm && hm.classList.contains('open')) app.renderVRHistoryList();
+            },
+
+            openVRHistoryModal: () => {
+                const dateStr = app.vrDate || app.getTodayISO();
+                const picker = document.getElementById('vr-date-picker');
+                if (picker) picker.value = dateStr;
+                app.updateDateIndicator(dateStr, { inputId: 'vr-date-picker', barId: 'vr-date-bar', badgeId: 'vr-date-badge', todayBtnId: 'vr-today-btn' });
+                app.renderVRHistoryList();
+                document.getElementById('vr-history-modal').classList.add('open');
+            },
+
+            selectVRHistoryDate: (dateStr) => {
+                app.vrDate = dateStr;
+                app.closeModal('vr-history-modal');
+                app.renderVisionVsReality();
+            },
+
+            renderVRHistoryList: () => {
+                const list = document.getElementById('vr-history-list');
+                if (!list) return;
+                const activeDate = app.vrDate || app.getTodayISO();
+                const today = app.getTodayISO();
+                const dates = Array.from(new Set([today, ...Object.keys(app.visions || {})]))
+                    .filter(Boolean)
+                    .sort((a, b) => b.localeCompare(a))
+                    .slice(0, 20);
+
+                list.innerHTML = dates.map(d => {
+                    const v = app.visions[d];
+                    const pCount = v && Array.isArray(v.priorities) ? v.priorities.filter(p => p.text && p.text.trim()).length : 0;
+                    const bCount = v ? app.normalizeVisionBlocks(v).length : 0;
+                    const isCur = d === activeDate;
+                    const isToday = d === today;
+                    return `
+                    <button onclick="app.selectVRHistoryDate('${d}')" class="w-full px-3 py-2 rounded-xl border text-left flex items-center justify-between gap-2 transition-colors ${isCur ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600' : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 hover:border-blue-400'}">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="text-xs font-mono font-black ${isCur ? 'text-blue-600 dark:text-blue-400' : ''}">${d}</span>
+                            ${isToday ? '<span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px] font-mono font-bold uppercase">Today</span>' : ''}
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-400 shrink-0">${v ? `${pCount} prio · ${bCount} blocks` : 'No plan'}</span>
+                    </button>`;
+                }).join('');
             },
 
             normalizeVisionBlocks: (v) => {
@@ -3197,7 +3311,8 @@
 
             renderVisionVsReality: () => {
                 const dateStr = app.vrDate || app.getTodayISO();
-                document.getElementById('vr-date-picker').value = dateStr;
+                const vrPicker = document.getElementById('vr-date-picker');
+                if (vrPicker) vrPicker.value = dateStr;
                 app.updateDateIndicator(dateStr, { inputId: 'vr-date-picker', barId: 'vr-date-bar', badgeId: 'vr-date-badge', todayBtnId: 'vr-today-btn' });
                 const container = document.getElementById('vr-content');
                 const v = app.visions[dateStr];
@@ -3287,11 +3402,17 @@
                                 </div>
                             </div>
                             <div class="min-w-0">
-                                <span class="text-[8px] sm:text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${verdictCls}">${verdictText}</span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="text-[8px] sm:text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${verdictCls}">${verdictText}</span>
+                                    ${dateStr !== app.getTodayISO() ? `<button onclick="app.setVRDate(app.getTodayISO())" title="Tap to return to Today" class="text-[8px] sm:text-[9px] font-mono font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">⚠ ${dateStr}</button>` : ''}
+                                </div>
                                 <h2 class="text-sm sm:text-base font-black tracking-tight mt-1 truncate">Vision vs Reality</h2>
                                 <p class="text-[10px] sm:text-[11px] text-slate-400 font-mono mt-0.5 truncate">${totalPlanned > 0 ? `Gap: <span class="text-rose-400 font-bold">${gap}%</span> (${totalExecutedDisplay}/${totalPlanned} hit)` : 'Plan your day to measure the gap'}</p>
                             </div>
                         </div>
+                        <button onclick="app.openVRHistoryModal()" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors flex items-center gap-1">
+                            <i class="fas fa-history text-[10px]"></i><span>History</span>
+                        </button>
                     </div>
                     <div class="grid grid-cols-3 gap-1.5 sm:gap-2 mt-2.5 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-white/10 text-center">
                         <div>
@@ -3309,27 +3430,27 @@
                     </div>
                 </div>`;
 
-                // 2. Top 2 Priorities Comparison
+                // 2. Top 2 Priorities Comparison (Sleek Compact Strip)
                 let prioHtml = '';
                 if (priorities.length > 0) {
                     prioHtml = `
-                    <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-xs font-black uppercase tracking-widest text-slate-500">Top 2 Priorities</h3>
-                            <span class="text-[10px] font-mono text-slate-400">Tap to mark reality</span>
+                    <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-2.5 py-2 space-y-1.5">
+                        <div class="flex items-center justify-between px-1">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><i class="fas fa-bolt text-blue-500 text-[9px]"></i>Top Priorities</span>
+                            <span class="text-[9px] font-mono font-bold ${prioDone === prioTotal ? 'text-emerald-500' : 'text-slate-400'}">${prioDone}/${prioTotal}</span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="space-y-1">
                             ${v.priorities.map((p, idx) => {
                                 if (!p.text || !p.text.trim()) return '';
                                 return `
-                                <button onclick="app.toggleVRPriority('${dateStr}', ${idx})" class="text-left p-3.5 rounded-xl border transition-all flex items-start gap-3 ${p.done ? 'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-800' : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 hover:border-blue-400'}">
-                                    <div class="w-5 h-5 rounded-full shrink-0 mt-0.5 flex items-center justify-center border-2 ${p.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-zinc-700'}">
-                                        ${p.done ? '<i class="fas fa-check text-[9px]"></i>' : `<span class="text-[9px] font-mono font-bold text-slate-400">${idx + 1}</span>`}
+                                <button onclick="app.toggleVRPriority('${dateStr}', ${idx})" class="w-full text-left px-2.5 py-1.5 rounded-xl border transition-all flex items-center justify-between gap-2 active:scale-[0.99] ${p.done ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-300/70 dark:border-emerald-800/70' : 'bg-slate-50/80 dark:bg-zinc-950 border-slate-200/80 dark:border-zinc-800 hover:border-blue-400'}">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <span class="w-4 h-4 rounded-full shrink-0 flex items-center justify-center border ${p.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-blue-500/60 text-blue-500'}">
+                                            ${p.done ? '<i class="fas fa-check text-[8px]"></i>' : `<span class="text-[8px] font-mono font-black">${idx + 1}</span>`}
+                                        </span>
+                                        <span class="text-[11px] font-bold truncate ${p.done ? 'line-through text-emerald-600 dark:text-emerald-400 opacity-80' : 'text-slate-800 dark:text-zinc-100'}">${escapeHTML(p.text)}</span>
                                     </div>
-                                    <div class="min-w-0">
-                                        <div class="text-xs font-bold ${p.done ? 'line-through text-emerald-700 dark:text-emerald-400' : ''}">${escapeHTML(p.text)}</div>
-                                        <div class="text-[9px] font-mono uppercase mt-1 ${p.done ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-500'}">${p.done ? 'Reality: Executed' : 'Reality: Pending'}</div>
-                                    </div>
+                                    <span class="text-[8px] font-mono font-black uppercase px-1.5 py-0.5 rounded shrink-0 ${p.done ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'}">${p.done ? 'Hit' : 'Focus'}</span>
                                 </button>`;
                             }).join('')}
                         </div>
@@ -3562,10 +3683,10 @@
                 </div>`;
 
                 container.innerHTML = `
-                    <div class="vr-hero">${heroHtml}</div>
+                    <div class="vr-hero space-y-3">${heroHtml}${prioHtml}</div>
                     <div class="vr-habit">${yearlyHabitHtml}</div>
                     <div class="vr-intervals">${intervalsHtml}</div>
-                    <div class="vr-side space-y-4">${prioHtml}${tasksHtml}${realityStripHtml}</div>
+                    <div class="vr-side space-y-4">${tasksHtml}${realityStripHtml}</div>
                 `;
             },
 
