@@ -28,7 +28,7 @@
                 }
             };
         }
-        const _initDark = localStorage.getItem('strict_theme') === 'dark';
+        const _initDark = localStorage.getItem('strict_theme') !== 'light';
         if (_initDark) document.documentElement.classList.add('dark');
         const _tcMeta = document.querySelector('meta[name="theme-color"]');
         if (_tcMeta) _tcMeta.setAttribute('content', _initDark ? '#09090b' : '#f8fafc');
@@ -84,6 +84,13 @@
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .radial-cell { transition: opacity 0.15s ease, transform 0.15s ease; transform-origin: center; }
         .radial-cell:hover { opacity: 0.82; }
+
+        .desktop-streak-pill { display: none; }
+        @media (min-width: 1024px) {
+            body:not(.force-phone) .desktop-streak-pill { display: inline-flex; }
+        }
+        body.force-desktop .desktop-streak-pill { display: inline-flex; }
+        body.force-phone .desktop-streak-pill { display: none; }
 
         /* Habit Smart Widget Stack (Swipe Up/Down) */
         .hs-stage { position: relative; height: 130px; overflow: hidden; }
@@ -444,9 +451,21 @@
                 <span id="header-subtitle" class="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-zinc-500">Audit</span>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="app.openStreakModal()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-orange-600 dark:text-orange-400 text-xs font-mono font-bold hover:opacity-85 active:scale-95 transition-all" title="View All Streaks">
+                <button onclick="app.openStreakModal('task')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-orange-600 dark:text-orange-400 text-xs font-mono font-bold hover:opacity-85 active:scale-95 transition-all" title="Execution Streak">
                     <i class="fas fa-fire text-[11px]"></i>
                     <span id="streak-count">0</span>
+                </button>
+                <button onclick="app.openStreakModal('study')" class="desktop-streak-pill items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 text-xs font-mono font-bold hover:opacity-85 active:scale-95 transition-all" title="Study Streak">
+                    <i class="fas fa-book text-[11px]"></i>
+                    <span id="streak-study-count">0</span>
+                </button>
+                <button onclick="app.openStreakModal('practice')" class="desktop-streak-pill items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-900/50 text-violet-600 dark:text-violet-400 text-xs font-mono font-bold hover:opacity-85 active:scale-95 transition-all" title="Practice Streak">
+                    <i class="fas fa-pencil-ruler text-[11px]"></i>
+                    <span id="streak-practice-count">0</span>
+                </button>
+                <button onclick="app.openStreakModal('exercise')" class="desktop-streak-pill items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold hover:opacity-85 active:scale-95 transition-all" title="Exercise Streak">
+                    <i class="fas fa-dumbbell text-[11px]"></i>
+                    <span id="streak-exercise-count">0</span>
                 </button>
                 <button onclick="app.syncGCal()" id="header-gcal-btn" title="Sync Google Calendar" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                     <i id="header-gcal-icon" class="fas fa-sync-alt text-xs"></i>
@@ -1780,17 +1799,22 @@
                 };
             },
 
-            openStreakModal: () => {
+            openStreakModal: (highlightKey = null) => {
                 const s = app.getStreaks();
                 const rows = [
-                    { title: 'Execution Streak', rule: 'Complete ≥ 80% of daily targets', icon: 'fa-fire', color: 'text-orange-500 bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/50', data: s.task },
-                    { title: 'Study Streak', rule: 'Study > 3 hours daily', icon: 'fa-book', color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50', data: s.study },
-                    { title: 'Practice Streak', rule: 'Practice > 1 hour daily', icon: 'fa-pencil-ruler', color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/40 border-violet-200 dark:border-violet-900/50', data: s.practice },
-                    { title: 'Exercise Streak', rule: 'Log Exercise = Yes daily', icon: 'fa-dumbbell', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50', data: s.exercise }
+                    { key: 'task', title: 'Execution Streak', rule: 'Complete ≥ 80% of daily targets', icon: 'fa-fire', color: 'text-orange-500 bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/50', ring: 'border-orange-400 dark:border-orange-500 bg-orange-50/60 dark:bg-orange-950/25 ring-2 ring-orange-500/25', data: s.task },
+                    { key: 'study', title: 'Study Streak', rule: 'Study > 3 hours daily', icon: 'fa-book', color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50', ring: 'border-blue-400 dark:border-blue-500 bg-blue-50/60 dark:bg-blue-950/25 ring-2 ring-blue-500/25', data: s.study },
+                    { key: 'practice', title: 'Practice Streak', rule: 'Practice > 1 hour daily', icon: 'fa-pencil-ruler', color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/40 border-violet-200 dark:border-violet-900/50', ring: 'border-violet-400 dark:border-violet-500 bg-violet-50/60 dark:bg-violet-950/25 ring-2 ring-violet-500/25', data: s.practice },
+                    { key: 'exercise', title: 'Exercise Streak', rule: 'Log Exercise = Yes daily', icon: 'fa-dumbbell', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50', ring: 'border-emerald-400 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/25 ring-2 ring-emerald-500/25', data: s.exercise }
                 ];
 
-                document.getElementById('streak-modal-list').innerHTML = rows.map(r => `
-                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between gap-3">
+                document.getElementById('streak-modal-list').innerHTML = rows.map(r => {
+                    const isActive = highlightKey && r.key === highlightKey;
+                    const cardCls = isActive
+                        ? r.ring
+                        : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800';
+                    return `
+                    <div class="p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${cardCls}">
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${r.color}">
                                 <i class="fas ${r.icon} text-sm"></i>
@@ -1807,8 +1831,8 @@
                             <div class="text-2xl font-black font-mono leading-none">${r.data.count}</div>
                             <div class="text-[9px] font-mono uppercase text-slate-400 mt-0.5">${r.data.count === 1 ? 'Day' : 'Days'}</div>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
 
                 document.getElementById('streak-modal').classList.add('open');
             },
@@ -1824,6 +1848,12 @@
 
                 const streaks = app.getStreaks();
                 document.getElementById('streak-count').innerText = streaks.task.count;
+                const sStudy = document.getElementById('streak-study-count');
+                const sPrac = document.getElementById('streak-practice-count');
+                const sEx = document.getElementById('streak-exercise-count');
+                if (sStudy) sStudy.innerText = streaks.study.count;
+                if (sPrac) sPrac.innerText = streaks.practice.count;
+                if (sEx) sEx.innerText = streaks.exercise.count;
                 const tc = (app.trash || []).length;
                 const sc = document.getElementById('sched-trash-count');
                 const stc = document.getElementById('settings-trash-count');
@@ -2347,6 +2377,7 @@
                         let colsHtml = '';
                         for (let w = 0; w < totalWeeks; w++) {
                             let colCells = '';
+                            let hasFocus = false;
                             for (let r = 0; r < 7; r++) {
                                 const slot = allSlots[w * 7 + r];
                                 if (!slot) {
@@ -2355,6 +2386,7 @@
                                     const { state, val } = app.evalMarkerStatus(m, slot.iso);
                                     const isFuture = slot.iso > todayISO;
                                     if (state === 'hit') hits++;
+                                    if (slot.iso === todayISO) hasFocus = true;
                                     const bg = state === 'hit' ? 'bg-emerald-500'
                                         : state === 'fail' ? 'bg-red-500'
                                         : isFuture ? 'bg-slate-100/60 dark:bg-zinc-900/60'
@@ -2363,7 +2395,7 @@
                                     colCells += `<div title="${slot.iso}: ${val || 'Unlogged'}" class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] ${bg} ${ring} shrink-0"></div>`;
                                 }
                             }
-                            colsHtml += `<div class="flex flex-col gap-[3px] sm:gap-1 shrink-0">${colCells}</div>`;
+                            colsHtml += `<div ${hasFocus ? 'data-hm-focus="1"' : ''} class="flex flex-col gap-[3px] sm:gap-1 shrink-0">${colCells}</div>`;
                         }
                         const pct = Math.round((hits / totalDays) * 100);
                         return `
@@ -2383,6 +2415,7 @@
                             </div>
                         </div>`;
                     }).join('');
+                    app.scrollHeatmapsToCurrent(container);
                 }
             },
 
@@ -3434,6 +3467,21 @@
                 }, { passive: false });
             },
 
+            scrollHeatmapsToCurrent: (root) => {
+                if (!root) return;
+                requestAnimationFrame(() => {
+                    root.querySelectorAll('.scroller').forEach(sc => {
+                        const target = sc.querySelector('[data-hm-focus="1"]');
+                        if (!target) return;
+                        const scRect = sc.getBoundingClientRect();
+                        const tRect = target.getBoundingClientRect();
+                        if (!scRect.width) return;
+                        const relLeft = (tRect.left - scRect.left) + sc.scrollLeft;
+                        sc.scrollLeft = Math.max(0, relLeft - sc.clientWidth + tRect.width + 44);
+                    });
+                });
+            },
+
             renderVisionVsReality: () => {
                 const dateStr = app.vrDate || app.getTodayISO();
                 const vrPicker = document.getElementById('vr-date-picker');
@@ -3779,6 +3827,7 @@
                                     let colsHtml = '';
                                     for (let w = 0; w < totalWeeks; w++) {
                                         let colCells = '';
+                                        let hasFocus = false;
                                         for (let r = 0; r < 7; r++) {
                                             const slot = allYearSlots[w * 7 + r];
                                             if (!slot) {
@@ -3787,6 +3836,7 @@
                                                 const { state, val } = app.evalMarkerStatus(m, slot.iso);
                                                 const isFuture = slot.iso > todayISO;
                                                 if (state === 'hit') hits++;
+                                                if (slot.iso === dateStr) hasFocus = true;
                                                 const bg = state === 'hit' ? 'bg-emerald-500'
                                                     : state === 'fail' ? 'bg-red-500'
                                                     : isFuture ? 'bg-slate-100/60 dark:bg-zinc-900/60'
@@ -3795,7 +3845,7 @@
                                                 colCells += `<div title="${slot.iso}: ${val || 'Unlogged'}" class="w-2.5 h-2.5 rounded-[2px] ${bg} ${ring}"></div>`;
                                             }
                                         }
-                                        colsHtml += `<div class="flex flex-col gap-[3px] shrink-0">${colCells}</div>`;
+                                        colsHtml += `<div ${hasFocus ? 'data-hm-focus="1"' : ''} class="flex flex-col gap-[3px] shrink-0">${colCells}</div>`;
                                     }
                                     const pct = Math.round((hits / totalYearDays) * 100);
                                     return `
@@ -3831,6 +3881,7 @@
                     <div class="vr-side space-y-4">${prioHtml ? `<div class="vr-prio-desktop">${prioHtml}</div>` : ''}${tasksHtml}${realityStripHtml}</div>
                 `;
                 app.bindHabitStack();
+                app.scrollHeatmapsToCurrent(document.getElementById('habit-stack-stage'));
             },
 
             // --- VISION PLANNER (IN PLAN TAB · CUSTOM TIME INTERVALS) ---
