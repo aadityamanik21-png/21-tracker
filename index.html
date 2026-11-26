@@ -85,6 +85,36 @@
         .radial-cell { transition: opacity 0.15s ease, transform 0.15s ease; transform-origin: center; }
         .radial-cell:hover { opacity: 0.82; }
 
+        /* Habit Smart Widget Stack (Swipe Up/Down) */
+        .hs-stage { position: relative; height: 130px; overflow: hidden; }
+        .hs-stage.hs-swipeable,
+        .hs-stage.hs-swipeable .scroller { touch-action: pan-x; }
+        .hs-slide {
+            position: absolute; inset: 0; opacity: 0; pointer-events: none;
+            will-change: transform, opacity;
+        }
+        .hs-slide.hs-active { opacity: 1; pointer-events: auto; z-index: 2; }
+        .hs-enter-up { animation: hsEnterUp 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; z-index: 3; }
+        .hs-exit-up { animation: hsExitUp 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; z-index: 1; }
+        .hs-enter-down { animation: hsEnterDown 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; z-index: 3; }
+        .hs-exit-down { animation: hsExitDown 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; z-index: 1; }
+        @keyframes hsEnterUp {
+            from { opacity: 0; transform: translateY(38px) scale(0.93); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes hsExitUp {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-38px) scale(0.93); }
+        }
+        @keyframes hsEnterDown {
+            from { opacity: 0; transform: translateY(-38px) scale(0.93); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes hsExitDown {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(38px) scale(0.93); }
+        }
+
         /* Ergonomic Mode System */
         .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
         .side-rail { display: none; }
@@ -1243,7 +1273,7 @@
                     <button type="button" onclick="app.setLayoutMode('phone')" id="lmode-phone" class="py-1.5 rounded-lg transition-colors">Phone</button>
                 </div>
             </div>
-            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2.5">
+            <div id="phone-frame-settings-card" class="hidden p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2.5">
                 <div class="flex items-center justify-between text-xs font-bold">
                     <span><i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Phone Visual Frame</span>
                     <span id="phone-frame-label" class="text-[10px] font-mono uppercase text-slate-400">Normal</span>
@@ -1323,6 +1353,8 @@
             statsSubTab: 'vision', // 'vision' | 'detailed'
             vrDate: '',
             detailedChartFilter: 'all',
+            habitStackIdx: 0,
+            habitStackJustSwiped: false,
             planSubTab: 'targets', // 'targets' | 'vision'
             planFilter: 'active',
             currentLogDate: '',
@@ -1377,7 +1409,8 @@
 
             scheduleCursor: new Date(),
             layoutMode: localStorage.getItem('strict_layout_mode') || 'auto', // 'auto' | 'desktop' | 'phone'
-            phoneFrame: localStorage.getItem('strict_phone_frame') || 'normal', // 'iphone' | 'samsung' | 'normal'
+            phoneFrame: localStorage.getItem('strict_phone_frame') || '', // '' (auto-default) | 'iphone' | 'samsung' | 'normal'
+            getDefaultPhoneFrame: () => (window.innerWidth >= 1024 ? 'iphone' : 'normal'),
             phoneFrameBg: localStorage.getItem('strict_phone_frame_bg') || '#050507',
             frameBgPresets: [
                 { name: 'Pitch Black', hex: '#000000' },
@@ -3309,6 +3342,93 @@
                 return { state: 'missed', label: `${loggedTime} · +${diffEnd}m late` };
             },
 
+            stepHabitStack: (dir) => {
+                const len = app.markers.length;
+                if (len <= 1) return;
+                const nextIdx = (app.habitStackIdx + dir + len) % len;
+                app.setHabitStackIdx(nextIdx, dir);
+            },
+
+            setHabitStackIdx: (nextIdx, dir = null) => {
+                const len = app.markers.length;
+                if (len <= 1) return;
+                const prevIdx = Math.max(0, Math.min(app.habitStackIdx, len - 1));
+                const target = ((nextIdx % len) + len) % len;
+                if (target === prevIdx) return;
+                const direction = dir !== null ? dir : (target > prevIdx ? 1 : -1);
+                app.habitStackIdx = target;
+
+                const stage = document.getElementById('habit-stack-stage');
+                if (!stage) return;
+                const slides = stage.querySelectorAll('.hs-slide');
+                slides.forEach(el => el.classList.remove('hs-active', 'hs-enter-up', 'hs-exit-up', 'hs-enter-down', 'hs-exit-down'));
+
+                const prevEl = slides[prevIdx];
+                const nextEl = slides[target];
+                if (nextEl) void nextEl.offsetWidth;
+                if (prevEl) prevEl.classList.add(direction > 0 ? 'hs-exit-up' : 'hs-exit-down');
+                if (nextEl) nextEl.classList.add('hs-active', direction > 0 ? 'hs-enter-up' : 'hs-enter-down');
+
+                const dots = document.querySelectorAll('#habit-stack-dots [data-hs-dot]');
+                dots.forEach((d, i) => {
+                    const active = i === target;
+                    d.className = `w-1.5 rounded-full transition-all duration-300 ${active ? 'h-4 bg-blue-500' : 'h-1.5 bg-slate-300 dark:bg-zinc-700 hover:bg-slate-400'}`;
+                });
+
+                const cnt = document.getElementById('habit-stack-counter');
+                if (cnt) cnt.innerText = `${target + 1}/${len}`;
+            },
+
+            bindHabitStack: () => {
+                const stage = document.getElementById('habit-stack-stage');
+                if (!stage || app.markers.length <= 1) return;
+                let startX = 0, startY = 0, tracking = false, axis = null;
+
+                stage.addEventListener('touchstart', (e) => {
+                    if (e.touches.length !== 1) return;
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                    tracking = true;
+                    axis = null;
+                }, { passive: true });
+
+                stage.addEventListener('touchmove', (e) => {
+                    if (!tracking || e.touches.length !== 1) return;
+                    const dx = e.touches[0].clientX - startX;
+                    const dy = e.touches[0].clientY - startY;
+                    if (!axis && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+                        axis = Math.abs(dy) >= Math.abs(dx) ? 'v' : 'h';
+                    }
+                    if (axis === 'v') {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                stage.addEventListener('touchend', (e) => {
+                    if (!tracking || !e.changedTouches.length) return;
+                    const wasVertical = axis === 'v';
+                    tracking = false;
+                    axis = null;
+                    const dx = e.changedTouches[0].clientX - startX;
+                    const dy = e.changedTouches[0].clientY - startY;
+                    if ((wasVertical || Math.abs(dy) > Math.abs(dx) * 1.15) && Math.abs(dy) >= 24) {
+                        app.habitStackJustSwiped = true;
+                        setTimeout(() => { app.habitStackJustSwiped = false; }, 260);
+                        app.stepHabitStack(dy < 0 ? 1 : -1);
+                    }
+                }, { passive: true });
+
+                stage.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 18) {
+                        e.preventDefault();
+                        if (stage._wheelLock) return;
+                        stage._wheelLock = true;
+                        setTimeout(() => { stage._wheelLock = false; }, 260);
+                        app.stepHabitStack(e.deltaY > 0 ? 1 : -1);
+                    }
+                }, { passive: false });
+            },
+
             renderVisionVsReality: () => {
                 const dateStr = app.vrDate || app.getTodayISO();
                 const vrPicker = document.getElementById('vr-date-picker');
@@ -3502,10 +3622,7 @@
                 const intervalsHtml = `
                 <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4">
                     <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <h3 class="text-xs font-black uppercase tracking-widest text-slate-500">Time-Block Blueprint</h3>
-                            <p class="text-[10px] text-slate-400">Output & routine blocks auto-sync from Log · Other blocks are manual</p>
-                        </div>
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-500">Today's schedule</h3>
                         <button onclick="app.openVisionPlannerFor('${dateStr}')" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">+ Edit Blocks</button>
                     </div>
                     ${summaryChips ? `<div class="flex flex-wrap gap-1.5 mb-3">${summaryChips}</div>` : ''}
@@ -3627,59 +3744,75 @@
                 }
                 const todayISO = app.getTodayISO();
 
+                const hasStack = app.markers.length > 1;
+                if (app.habitStackIdx >= app.markers.length) app.habitStackIdx = 0;
+
                 const yearlyHabitHtml = `
-                <div onclick="app.openHeatmapModal()" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-600 rounded-2xl p-4 cursor-pointer transition-colors group">
-                    <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <h3 class="font-bold text-sm flex items-center gap-2">
-                                Habit Consistency · ${hmYear}
-                                <i class="fas fa-expand-alt text-[10px] text-slate-400 group-hover:text-blue-500 transition-colors"></i>
-                            </h3>
-                            <p class="text-[10px] uppercase tracking-widest text-slate-400">Yearly Heatmap · Tap for Week/Month/Year</p>
+                <div>
+                    <div onclick="if(!app.habitStackJustSwiped) app.openHeatmapModal()" class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-600 rounded-2xl p-4 cursor-pointer transition-colors group relative z-10">
+                        <div class="flex justify-between items-center mb-3 gap-2">
+                            <div class="min-w-0">
+                                <h3 class="font-bold text-sm flex items-center gap-2">
+                                    History of habits
+                                    <i class="fas fa-expand-alt text-[10px] text-slate-400 group-hover:text-blue-500 transition-colors"></i>
+                                </h3>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                ${hasStack ? `<span id="habit-stack-counter" class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400">${app.habitStackIdx + 1}/${app.markers.length}</span>` : ''}
+                                <button onclick="event.stopPropagation(); app.openLogSubTab('journal')" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider px-2 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40">Manage</button>
+                            </div>
                         </div>
-                        <button onclick="event.stopPropagation(); app.openLogSubTab('journal')" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider px-2 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40">Manage</button>
-                    </div>
-                    ${app.markers.length === 0 ? `<p class="text-xs text-slate-400 font-mono">Add custom habit markers in Log → Journal to see your yearly heatmap.</p>` : `
-                    <div class="space-y-3.5">
-                        ${app.markers.map(m => {
-                            let hits = 0;
-                            let colsHtml = '';
-                            for (let w = 0; w < totalWeeks; w++) {
-                                let colCells = '';
-                                for (let r = 0; r < 7; r++) {
-                                    const slot = allYearSlots[w * 7 + r];
-                                    if (!slot) {
-                                        colCells += `<div class="w-2.5 h-2.5"></div>`;
-                                    } else {
-                                        const { state, val } = app.evalMarkerStatus(m, slot.iso);
-                                        const isFuture = slot.iso > todayISO;
-                                        if (state === 'hit') hits++;
-                                        const bg = state === 'hit' ? 'bg-emerald-500'
-                                            : state === 'fail' ? 'bg-red-500'
-                                            : isFuture ? 'bg-slate-100/60 dark:bg-zinc-900/60'
-                                            : 'bg-slate-200 dark:bg-zinc-800';
-                                        const ring = slot.iso === dateStr ? 'ring-1 ring-blue-500' : '';
-                                        colCells += `<div title="${slot.iso}: ${val || 'Unlogged'}" class="w-2.5 h-2.5 rounded-[2px] ${bg} ${ring}"></div>`;
+                        ${app.markers.length === 0 ? `<p class="text-xs text-slate-400 font-mono">Add custom habit markers in Log → Journal to see your yearly heatmap.</p>` : `
+                        <div class="flex items-center gap-2.5">
+                            <div id="habit-stack-stage" class="hs-stage flex-1 min-w-0 ${hasStack ? 'hs-swipeable' : ''}">
+                                ${app.markers.map((m, idx) => {
+                                    let hits = 0;
+                                    let colsHtml = '';
+                                    for (let w = 0; w < totalWeeks; w++) {
+                                        let colCells = '';
+                                        for (let r = 0; r < 7; r++) {
+                                            const slot = allYearSlots[w * 7 + r];
+                                            if (!slot) {
+                                                colCells += `<div class="w-2.5 h-2.5"></div>`;
+                                            } else {
+                                                const { state, val } = app.evalMarkerStatus(m, slot.iso);
+                                                const isFuture = slot.iso > todayISO;
+                                                if (state === 'hit') hits++;
+                                                const bg = state === 'hit' ? 'bg-emerald-500'
+                                                    : state === 'fail' ? 'bg-red-500'
+                                                    : isFuture ? 'bg-slate-100/60 dark:bg-zinc-900/60'
+                                                    : 'bg-slate-200 dark:bg-zinc-800';
+                                                const ring = slot.iso === dateStr ? 'ring-1 ring-blue-500' : '';
+                                                colCells += `<div title="${slot.iso}: ${val || 'Unlogged'}" class="w-2.5 h-2.5 rounded-[2px] ${bg} ${ring}"></div>`;
+                                            }
+                                        }
+                                        colsHtml += `<div class="flex flex-col gap-[3px] shrink-0">${colCells}</div>`;
                                     }
-                                }
-                                colsHtml += `<div class="flex flex-col gap-[3px] shrink-0">${colCells}</div>`;
-                            }
-                            const pct = Math.round((hits / totalYearDays) * 100);
-                            return `
-                            <div>
-                                <div class="flex justify-between text-xs mb-1.5">
-                                    <span class="font-bold">${escapeHTML(m.label)}</span>
-                                    <span class="font-mono text-[10px] text-slate-400">${hits}/${totalYearDays} (${pct}%)</span>
-                                </div>
-                                <div class="overflow-x-auto scroller pb-1">
-                                    <div class="inline-block">
-                                        <div class="flex gap-[3px] mb-1">${monthHeaderRow}</div>
-                                        <div class="flex gap-[3px]">${colsHtml}</div>
-                                    </div>
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>`}
+                                    const pct = Math.round((hits / totalYearDays) * 100);
+                                    return `
+                                    <div class="hs-slide ${idx === app.habitStackIdx ? 'hs-active' : ''}">
+                                        <div class="flex justify-between items-center text-xs mb-1.5 gap-2">
+                                            <span class="font-bold truncate">${escapeHTML(m.label)}</span>
+                                            <span class="font-mono text-[10px] text-slate-400 shrink-0">${hits}/${totalYearDays} (${pct}%)</span>
+                                        </div>
+                                        <div class="overflow-x-auto scroller pb-1">
+                                            <div class="inline-block">
+                                                <div class="flex gap-[3px] mb-1">${monthHeaderRow}</div>
+                                                <div class="flex gap-[3px]">${colsHtml}</div>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                            ${hasStack ? `
+                            <div id="habit-stack-dots" onclick="event.stopPropagation()" class="flex flex-col items-center justify-center gap-1.5 py-1 shrink-0">
+                                ${app.markers.map((m, idx) => `
+                                    <button type="button" data-hs-dot="${idx}" onclick="event.stopPropagation(); app.setHabitStackIdx(${idx})" title="${escapeHTML(m.label)}" class="w-1.5 rounded-full transition-all duration-300 ${idx === app.habitStackIdx ? 'h-4 bg-blue-500' : 'h-1.5 bg-slate-300 dark:bg-zinc-700 hover:bg-slate-400'}"></button>
+                                `).join('')}
+                            </div>` : ''}
+                        </div>`}
+                    </div>
+                    ${hasStack ? `<div class="mx-4 h-1.5 rounded-b-xl bg-slate-200/70 dark:bg-zinc-800/80 border-x border-b border-slate-200 dark:border-zinc-800/90 -mt-px"></div>` : ''}
                 </div>`;
 
                 container.innerHTML = `
@@ -3688,6 +3821,7 @@
                     <div class="vr-intervals">${intervalsHtml}</div>
                     <div class="vr-side space-y-4">${tasksHtml}${realityStripHtml}</div>
                 `;
+                app.bindHabitStack();
             },
 
             // --- VISION PLANNER (IN PLAN TAB · CUSTOM TIME INTERVALS) ---
@@ -4436,17 +4570,24 @@
             setLayoutMode: (mode) => {
                 localStorage.setItem('strict_layout_mode', mode);
                 app.applyLayoutMode(mode);
+                app.applyPhoneFrame(app.phoneFrame, app.phoneFrameBg);
             },
 
             applyPhoneFrame: (frame, bg) => {
-                const valid = ['iphone', 'samsung', 'normal'].includes(frame) ? frame : 'normal';
+                const isPhoneMode = app.layoutMode === 'phone';
+                const saved = ['iphone', 'samsung', 'normal'].includes(frame) ? frame : '';
+                const valid = saved || app.getDefaultPhoneFrame();
+                const activeFrame = isPhoneMode ? valid : 'normal';
                 const color = bg || '#050507';
-                app.phoneFrame = valid;
+                app.phoneFrame = saved;
                 app.phoneFrameBg = color;
 
-                document.body.classList.toggle('phone-framed', valid !== 'normal');
-                document.body.classList.toggle('frame-iphone', valid === 'iphone');
-                document.body.classList.toggle('frame-samsung', valid === 'samsung');
+                const card = document.getElementById('phone-frame-settings-card');
+                if (card) card.classList.toggle('hidden', !isPhoneMode);
+
+                document.body.classList.toggle('phone-framed', activeFrame !== 'normal');
+                document.body.classList.toggle('frame-iphone', activeFrame === 'iphone');
+                document.body.classList.toggle('frame-samsung', activeFrame === 'samsung');
                 document.documentElement.style.setProperty('--frame-bg', color);
 
                 const lbl = document.getElementById('phone-frame-label');
