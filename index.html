@@ -2369,7 +2369,7 @@
                             lbl = monthNames[firstValid.month];
                             lastMonthShown = firstValid.month;
                         }
-                        monthHeaderRow += `<div class="w-2.5 sm:w-3 shrink-0 text-[7.5px] sm:text-[8px] font-mono text-slate-400 leading-none overflow-visible whitespace-nowrap">${lbl}</div>`;
+                        monthHeaderRow += `<div data-hm-col="1" ${lbl ? 'data-hm-month="1"' : ''} class="w-2.5 sm:w-3 shrink-0 text-[7.5px] sm:text-[8px] font-mono text-slate-400 leading-none overflow-visible whitespace-nowrap">${lbl}</div>`;
                     }
 
                     container.innerHTML = app.markers.map(m => {
@@ -3476,8 +3476,28 @@
                         const scRect = sc.getBoundingClientRect();
                         const tRect = target.getBoundingClientRect();
                         if (!scRect.width) return;
-                        const relLeft = (tRect.left - scRect.left) + sc.scrollLeft;
-                        sc.scrollLeft = Math.max(0, relLeft - sc.clientWidth + tRect.width + 44);
+                        const maxScroll = Math.max(0, sc.scrollWidth - sc.clientWidth);
+                        if (maxScroll === 0) return;
+
+                        const targetRight = (tRect.left - scRect.left) + sc.scrollLeft + tRect.width + 12;
+                        const minNeeded = Math.max(0, targetRight - sc.clientWidth);
+
+                        const monthLefts = Array.from(sc.querySelectorAll('[data-hm-month="1"]'))
+                            .map(el => Math.round((el.getBoundingClientRect().left - scRect.left) + sc.scrollLeft));
+
+                        let snap = monthLefts.find(l => l >= minNeeded && l <= maxScroll);
+                        if (snap === undefined) {
+                            const prevMonth = monthLefts.filter(l => l <= maxScroll).pop();
+                            if (prevMonth !== undefined && prevMonth + sc.clientWidth >= targetRight - 10) {
+                                snap = prevMonth;
+                            }
+                        }
+                        if (snap === undefined) {
+                            const colLefts = Array.from(sc.querySelectorAll('[data-hm-col="1"]'))
+                                .map(el => Math.round((el.getBoundingClientRect().left - scRect.left) + sc.scrollLeft));
+                            snap = colLefts.find(l => l >= minNeeded && l <= maxScroll);
+                        }
+                        sc.scrollLeft = snap !== undefined ? snap : Math.min(minNeeded, maxScroll);
                     });
                 });
             },
@@ -3797,7 +3817,7 @@
                         mLbl = mNames[firstValid.month];
                         lastM = firstValid.month;
                     }
-                    monthHeaderRow += `<div class="w-2.5 text-[7.5px] font-mono text-slate-400 leading-none">${mLbl}</div>`;
+                    monthHeaderRow += `<div data-hm-col="1" ${mLbl ? 'data-hm-month="1"' : ''} class="w-2.5 shrink-0 text-[7.5px] font-mono text-slate-400 leading-none overflow-visible whitespace-nowrap">${mLbl}</div>`;
                 }
                 const todayISO = app.getTodayISO();
 
