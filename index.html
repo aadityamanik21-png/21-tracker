@@ -96,6 +96,8 @@
         .hs-stage { position: relative; height: 130px; overflow: hidden; }
         .hs-stage.hs-swipeable,
         .hs-stage.hs-swipeable .scroller { touch-action: pan-x; }
+        .hm-scroller { scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+        .hm-scroller [data-hm-month="1"] { scroll-snap-align: start; }
         .hs-slide {
             position: absolute; inset: 0; opacity: 0; pointer-events: none;
             will-change: transform, opacity;
@@ -2407,8 +2409,8 @@
                                 </div>
                                 <span class="text-xs font-mono font-bold text-slate-500">${hits}/${totalDays} <span class="text-emerald-500 ml-1">(${pct}%)</span></span>
                             </div>
-                            <div class="overflow-x-auto scroller pb-1">
-                                <div class="inline-block">
+                            <div class="overflow-x-auto scroller hm-scroller pb-1">
+                                <div class="inline-block pr-20 lg:pr-0">
                                     <div class="flex gap-[3px] sm:gap-1 mb-1.5">${monthHeaderRow}</div>
                                     <div class="flex gap-[3px] sm:gap-1">${colsHtml}</div>
                                 </div>
@@ -3874,8 +3876,8 @@
                                             <span class="font-bold truncate">${escapeHTML(m.label)}</span>
                                             <span class="font-mono text-[10px] text-slate-400 shrink-0">${hits}/${totalYearDays} (${pct}%)</span>
                                         </div>
-                                        <div class="overflow-x-auto scroller pb-1">
-                                            <div class="inline-block">
+                                        <div class="overflow-x-auto scroller hm-scroller pb-1">
+                                            <div class="inline-block pr-20 lg:pr-0">
                                                 <div class="flex gap-[3px] mb-1">${monthHeaderRow}</div>
                                                 <div class="flex gap-[3px]">${colsHtml}</div>
                                             </div>
